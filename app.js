@@ -11,6 +11,7 @@ $.getJSON(json_url, function(json) {
 });
 $.ajaxSetup({async: true});
 
+
 var base_webmap_id = config.base_webmap_id;
 var basemap_group_id = config.basemap_group_id;
 var default_extend = config.default_extend;
