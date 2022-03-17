@@ -372,7 +372,7 @@ require([
     query = shihyoLayer.createQuery();
 
     //var expression = "官署 = '" + kansho + "'";
-    var expression = "官署 = 'アメダス'";
+    var expression = "1=1";
     if (bunrui == "月別値") { 
       expression = expression + " AND 月 = " + month;
     }
