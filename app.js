@@ -2,7 +2,6 @@ var breakpoint_width = 600;
 var map = null;
 var view = null;
 var chart = null;
-var chart2 = null;
 
 //configの読み込み
 var json_url = "aplat_setting.json";
