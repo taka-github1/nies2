@@ -370,8 +370,8 @@ require([
       return;
     }
 
+    /*
     query = shihyoLayer.createQuery();
-
     //var expression = "官署 = '" + kansho + "'";
     var expression =  "1=1";
     if (bunrui == "月別値") { 
@@ -402,14 +402,15 @@ require([
     response = await shihyoLayer.queryFeatures(query);
     var features = response.features;
     var recordes = [];
+    */
     $('#prefectureselector > calcite-option').remove();
     const item = document.createElement("calcite-option");
     item.setAttribute("label", "全国");
     item.setAttribute("value", "全国");
     $('#prefectureselector').append(item);
 
-    for(var i = 0; i< features.length; i++) {
-      var area = features[i].attributes["都道府県リスト"];
+    for(var i = 0; i< config.prefecture.length; i++) {
+      var area = config.prefecture[i];
       const item = document.createElement("calcite-option");
       item.setAttribute("label", area);
       item.setAttribute("value", area);
