@@ -614,7 +614,7 @@ require([
       }
 
       //データ欠落年はnullをセット
-      while ((before_year + 1) != year) {
+      while ((before_year + 1) < year) {
         labels.push(before_year);
         datas.push(null);
         before_year++;
