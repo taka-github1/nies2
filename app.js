@@ -589,6 +589,10 @@ require([
       chat_title = chat_title + "　" + monthtxt;
       expression = expression + " AND 月 = " + month;
     }
+    
+    if (prefecture != "全国") {
+      expression = expression + " AND 都道府県 = " + prefecture;
+    }
 
     query.where = expression + " AND 観測地点名 = '" + observatory + "'";
     query.returnGeometry = false;
@@ -605,7 +609,7 @@ require([
 
       //年の開始は5の倍数
       if (i == 0) {
-        var fill_year = Math.floor(year / 5) * 5;;
+        var fill_year = Math.floor(year / 5) * 5;
         while (fill_year != year) {
           labels.push(fill_year);
           datas.push(null);
