@@ -591,7 +591,7 @@ require([
     }
     
     if (prefecture != "全国") {
-      expression = expression + " AND 都道府県 = " + prefecture;
+      expression = expression + " AND 都道府県 = '" + prefecture + "'";
     }
 
     query.where = expression + " AND 観測地点名 = '" + observatory + "'";
