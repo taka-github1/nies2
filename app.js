@@ -554,7 +554,8 @@ require([
     var prefecture = $('#prefectureselector').val();
     var observatory =  $('#observatoryselector').val();
     
-    if (observatory == "全て") {
+    var check = await check_graph_render();
+    if (check == false) {
       $("#graphviewDisableDiv").show();
       $("#graphviewCanvas").hide();
       return;
@@ -769,6 +770,40 @@ require([
     });
   }
 
+  //選択された観測所でグラフを描画できるかチェック
+  async function check_graph_render() {
+    var prefecture = $('#prefectureselector').val();
+    var observatory =  $('#observatoryselector').val();
+    var kansho =  $('#kanshoselector').val();
+    
+    var result = false;
+    if (shihyoLayer == null) {
+      return result;
+    }
+    if (observatory == "全て") {
+      return result;
+    }
+    
+    var query = shihyoLayer.createQuery();
+    var expression = "官署 = '" + kansho + "'";
+    expression = expression + " AND 観測地点名 = '" + observatory + "'";
+    if (prefecture != "全国"){
+      expression = expression + " AND 都道府県 = '" + prefecture + "'";
+    }
+    query.where = expression;
+    query.outFields = ["地点番号"];
+    query.groupByFieldsForStatistics = "地点番号";
+    query.returnDistinctValues = true;
+    query.returnGeometry = false;
+    
+    var response = await shihyoLayer.queryFeatures(query);
+    var features = response.features;
+    if (features.length == 1) {
+      result = true;
+    }
+    
+    return result;
+  }
 
   function download_csv(flg) {
     var shihyo = $('#shihyoselector').val();
