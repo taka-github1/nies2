@@ -1,0 +1,403 @@
+html,
+body {
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+#site-header {
+  background: #F7F7F7;
+  height: 70px;
+}
+
+#site-header::before {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 5px;
+    background: #f1ff2a;
+    background: -moz-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+    background: -webkit-gradient(linear, left center, right center, from(#64CFFF), color-stop(40%, #e51cd6), color-stop(70%, #f1752a), to(#f1ff2a));
+    background: -webkit-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+   background: -o-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+    background: -ms-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+   background: linear-gradient(to right, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%s);
+}
+
+#A-PLAT_logo {
+  height: 40px;
+  padding-left: 5px;
+  margin-top: 10px;
+  margin-right:50px;
+}
+
+#NIES_logo {
+  height: 40px;
+  margin-top: 10px;
+  padding-left: 5px;
+}
+
+#site-footer::before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 5px;
+  background: #f1752a;
+  background: -moz-linear-gradient(left, #64CFFF 0%, #e51cd6 44%, #f1752a 100%);
+  background: -webkit-gradient(linear, left center, right center, from(#64CFFF), color-stop(44%, #e51cd6), to(#f1752a));
+  background: -webkit-linear-gradient(left, #64CFFF 0%, #e51cd6 44%, #f1752a 100%);
+  background: -o-linear-gradient(left, #64CFFF 0%, #e51cd6 44%, #f1752a 100%);
+  background: -ms-linear-gradient(left, #64CFFF 0%, #e51cd6 44%, #f1752a 100%);
+  background: linear-gradient(to right, #64CFFF 0%, #e51cd6 44%, #f1752a 100%);
+}
+
+#site-footer {
+  background-color: #E3E5E5;
+  height: 10vh;
+  border-bottom: 15px solid #CCCCCC;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+#site-footer_menu {
+  margin-right: 0;
+  padding-top: 5px;
+  width: 100vw - 200px;
+}
+
+#site-footer_menu a {
+  padding-left: 20px;
+  font-size: 12px;
+  color: gray;
+}
+
+#site-footer_info {
+  padding-left: 5px;
+  width: 100%;
+}
+
+#site-footer_info p {
+  font-size: 9px;
+  padding-left: 20px;
+}
+
+#footer_menu{
+  list-style: none;
+}
+
+.nav_wrapper{  
+  display: flex;
+  list-style: none;
+}
+
+.nav__item a {
+  display: block;
+  padding: 1.5rem 1rem; }
+
+
+#mainDiv {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
+}
+
+#actionbarDiv {
+  min-width: 50px;
+}
+
+#sideDiv {
+  margin: 0px;
+  width: 0vw;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+#headerDiv {
+  width: 95%;
+  min-width: 250px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  background: #F7F7F7;
+}
+
+#displayDiv {
+  width: 60vw;
+  height: 100%;
+  display: block;
+  flex-direction: row;
+  /*overflow: hidden;*/
+}
+
+#mapviewDiv {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#mapviewCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+#graphviewDiv {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+
+#graphviewCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+#graphviewDisableDiv {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20vh;
+}
+
+h2 {
+  font-size: 16px;
+  font-family: arial black;
+  align-content: center;
+  line-height: 2;
+  margin-top: 10px;
+  margin-bottom: 0px;
+  
+}
+
+h3 {
+  font-size: 14px;
+  font-family: arial black;
+  align-content: center;
+  letter-spacing: 0.05em;
+  line-height: 2;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.dropdown {
+  position: relative;
+  display:block;
+  width: 100%;
+  min-height: 20px;
+  font-size: 16px;
+  align-items:center;
+  /*overflow: hidden;*/
+  white-space:nowrap;
+}
+
+.download {
+  display: block;
+  margin-top: 5px;
+}
+.hidden {
+  display:none;
+}
+
+#yearselector{
+  width: 100%;
+  height: 50px;
+}
+
+.esri-widget {
+  font-size: 12px !important;
+}
+
+.esri-legend {
+  border: 1px solid !important;
+}
+
+.esri-ui-corner .esri-expand .esri-widget--panel, .esri-ui-corner .esri-expand .esri-widget--panel-height-only, .esri-ui-corner .esri-component>.esri-widget--panel, .esri-ui-corner .esri-component.esri-widget--panel {
+  width: 200px !important;
+}
+
+.esri-popup__inline-actions-container:only-child>.esri-popup__action, .esri-popup__inline-actions-container:only-child>.esri-popup__action-toggle {
+  max-width: 30% !important;
+}
+
+.rowAlignment {
+  display: flex;
+  align-items: center;
+}
+
+.helpbutton {
+  min-width: 190px;
+  height: 45px;
+  cursor: pointer;
+  background-color: rgb(255, 242, 204);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.helpbutton:hover {
+  background-color: rgb(255, 255, 153);
+}
+
+.normalbutton {
+  min-width: 120px;
+  height: 45px;
+  cursor: pointer;
+  background-color: rgb(226, 240, 217);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.normalbutton:hover {
+  background-color: #bbbbbb;
+}
+
+.infobutton {
+  display: none;
+  min-width: 100px;
+  height: 30px;
+  font-size: 9;
+  cursor: pointer;
+  background-color: #bbbbbb;
+  position: absolute;
+  right: 0;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  margin: 8px;
+  border-radius: 5px;
+}
+
+.esri-legend__layer-caption {
+  display: none !important;
+}
+
+calcite-icon {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#attentionDialog {
+  display: flex;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0%;
+  right: 0%;
+  z-index: 4;
+  background-color: rgba(70, 70, 70, 0.9);
+}
+
+#attentionDialog-contents {
+  display: block;
+  position: static;
+  word-break: break-all;
+  font-size: 14px;
+  padding: 20px 20px 20px 20px;
+  height: 50%;
+  width: 80%;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  color: black;
+  overflow-y: auto;
+  background-color: rgb(255, 242, 204);
+}
+
+#smartFooterDialog {
+  display: flex;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0%;
+  right: 0%;
+  z-index: 4;
+  background-color: rgba(70, 70, 70, 0.9);
+}
+
+#smartFooterDialog-contents {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  word-break: break-all;
+  font-size: 14px;
+  padding: 20px 20px 20px 20px;
+  height: 50%; 
+  width: 80%;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  color: black;
+  overflow-y: auto;
+  background-color: #bbbbbb;
+}
+
+.infoPanel {
+  margin: 5px;
+  margin-top: 40px;
+  border: 2px solid #000000;
+  border-radius: 10px;
+  padding: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+
+@media screen and (max-width:600px) {
+  #mainDiv {
+    height: calc(100vh - 120px);
+  }
+  #sideDiv {
+    left: 60px;
+    width: calc(100vw - 60px);
+    height: calc(100vh - 120px);
+    position: absolute;
+    z-index: 2;
+  }
+  #displayDiv {
+    left: 60px;
+    width: calc(100vw - 60px);
+    height: calc(100vh - 120px);
+    z-index: 1;
+    position: absolute;
+  }
+  .rowAlignment {
+    display: block;
+    align-items: center;
+  }
+  #NIES_logo {
+    height: 30px;
+    margin-top: 10px;
+    padding-left: 5px;
+  }
+  .esri-widget {
+    font-size: 9px !important;
+  }
+  .esri-ui-corner .esri-expand .esri-widget--panel, .esri-ui-corner .esri-expand .esri-widget--panel-height-only, .esri-ui-corner .esri-component>.esri-widget--panel, .esri-ui-corner .esri-component.esri-widget--panel {
+    width: 160px !important;
+  }
+  #site-footer_info {
+    display: none;
+  }
+  
+  #attentionDialog-contents {
+    height: 90%; 
+  }
+  .infobutton {
+    display: block;
+  }
+}
