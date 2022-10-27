@@ -1,7 +1,14 @@
 var breakpoint_width = 600;
 var map = null;
 var view = null;
-var chart = null;
+var charts = {};
+var drawnCharts = {
+  minYear: 9999,
+  maxYear: 0,
+  minValue: 9999,
+  maxValue: 0,
+  charts: {}
+}
 
 //configの読み込み
 var json_url = "aplat_setting.json";
@@ -23,10 +30,42 @@ var urlParameters = {
   "shihyo": getParam("shihyo"),
   "year": getParam("year"),
   "month": getParam("month"),
-  "prefecture": getParam("prefecture"),
-  "observatory": getParam("observatory"),
+  "prefecture1": getParam("prefecture1"),
+  "observatory1": getParam("observatory1"),
+  "prefecture2": getParam("prefecture2"),
+  "observatory2": getParam("observatory2"),
+  "prefecture3": getParam("prefecture3"),
+  "observatory3": getParam("observatory3"),
+  "expand": getParam("expand"),
 }
 
+//グラフ複数選択要素
+var graphElements = [
+  {
+    "id": 1,
+    "prefecture": "prefectureselector1",
+    "observatory": "observatoryselector1",
+    "canvas": "graphviewCanvas1",
+    "disableDiv": "graphviewDisableDiv1",
+    "expand": "graphviewExpand1"
+  },
+  {
+    "id": 2,
+    "prefecture": "prefectureselector2",
+    "observatory": "observatoryselector2",
+    "canvas": "graphviewCanvas2",
+    "disableDiv": "graphviewDisableDiv2",
+    "expand": "graphviewExpand2"
+  },
+  {
+    "id": 3,
+    "prefecture": "prefectureselector3",
+    "observatory": "observatoryselector3",
+    "canvas": "graphviewCanvas3",
+    "disableDiv": "graphviewDisableDiv3",
+    "expand": "graphviewExpand3"
+  }
+]
 
 
 require([
@@ -144,7 +183,9 @@ require([
   map.when(function () {
     setForm(true);
 
-    if (urlParameters.prefecture || urlParameters.observatory) {
+
+    //修正
+    if (urlParameters.prefecture1 || urlParameters.observatory1) {
       setFilter(true);
     } else {
       setFilter(false);
@@ -179,11 +220,13 @@ require([
       $("#graphviewDiv").hide();
       $("#map_observatory").show();
       $("#graph_observatory").hide();
+      $(".subObservatory").hide();
     } else {
       $("#mapviewDiv").hide();
       $("#graphviewDiv").show();
       $("#map_observatory").hide();
       $("#graph_observatory").show();
+      $(".subObservatory").show();
     }
     setForm(false);
   });
@@ -196,23 +239,33 @@ require([
 
   $('#kanshoselector').on("calciteRadioGroupChange", function (event) {
     setForm(false);
-    setObservatoryselector();
+
+    for (const graphElement of graphElements) {
+      setObservatoryselector(graphElement.prefecture, graphElement.observatory, false);
+    }
+    // setObservatoryselector("prefectureselector", "observatoryselector", false);
     setFilter(true);
     draw_charts();
   });
 
-  $('#prefectureselector').on("calciteSelectChange", function (event) {
-    setObservatoryselector();
-    setForm(false);
-    setFilter(true);
-    draw_charts();
-  });
+  for (const graphElement of graphElements) {
+    $(`#${graphElement.prefecture}`).on("calciteSelectChange", function (event) {
+      setObservatoryselector(graphElement.prefecture, graphElement.observatory, true);
+      setForm(false);
+      setFilter(true);
+      draw_charts();
+    });
 
-  $('#observatoryselector').on("calciteSelectChange", function (event) {
-    setForm(false);
-    setFilter(true);
-    draw_charts();
-  });
+    $(`#${graphElement.observatory}`).on("calciteSelectChange", function (event) {
+      setForm(false);
+      setFilter(true);
+      draw_charts();
+    });
+
+    $(`#${graphElement.expand}`).on("click", function (event) {
+      console.log(event);
+    });
+  }
 
   yearSlider.on("thumb-change", function (event) {
     setFilter(false);
@@ -302,7 +355,7 @@ require([
   }
 
   async function setForm(init_flg) {
-    //修正中
+
     var display = $('#displayselector').val();
     if (urlParameters.display) {
       $('#displayselector').val(urlParameters.display);
@@ -332,27 +385,31 @@ require([
       urlParameters.month = null;
     }
 
-    var prefecture = $('#prefectureselector').val();
-    if (urlParameters.prefecture) {
-      $('#prefectureselector').val(urlParameters.prefecture);
-      prefecture = urlParameters.prefecture;
+    //修正
+
+    var prefecture = $('#prefectureselector1').val();
+    if (urlParameters.prefecture1) {
+      $('#prefectureselector1').val(urlParameters.prefecture1);
+      prefecture = urlParameters.prefecture1;
     }
 
-    var observatory = $('#observatoryselector').val();
-    if (urlParameters.observatory) {
-      $('#observatoryselector').val(urlParameters.observatory);
-      observatory = urlParameters.observatory;
+    var observatory = $('#observatoryselector1').val();
+    if (urlParameters.observatory1) {
+      $('#observatoryselector1').val(urlParameters.observatory1);
+      observatory = urlParameters.observatory1;
     }
 
 
     if (display == "graphview") {
       $("#mapviewDiv").hide();
       $("#graphviewDiv").show();
+      $(".subObservatory").show();
       $('#yearselector-label').addClass('hidden');
       $('#yearselectorDiv').addClass('hidden');
     } else {
       $("#mapviewDiv").show();
       $("#graphviewDiv").hide();
+      $(".subObservatory").hide();
       $('#yearselector-label').removeClass('hidden');
       $('#yearselectorDiv').removeClass('hidden');
     }
@@ -449,37 +506,68 @@ require([
       return;
     }
 
-    $('#prefectureselector > calcite-option').remove();
+    for (const graphElement of graphElements) {
+      setPrefectureselector(graphElement.prefecture, graphElement.observatory, init_flg);
+    }
+    // setPrefectureselector("prefectureselector", "observatoryselector", init_flg);
+    // setPrefectureselector("prefectureselector2", "observatoryselector2", init_flg);
+    // setPrefectureselector("prefectureselector3", "observatoryselector3", init_flg);
+
+
+    // $('#prefectureselector > calcite-option').remove();
+    // const item = document.createElement("calcite-option");
+    // item.setAttribute("label", "全国");
+    // item.setAttribute("value", "全国");
+    // $('#prefectureselector').append(item);
+    // $('#prefectureselector').val("全国");
+
+    // for (var i = 0; i < config.prefecture.length; i++) {
+    //   var area = config.prefecture[i];
+    //   const item = document.createElement("calcite-option");
+    //   item.setAttribute("label", area);
+    //   item.setAttribute("value", area);
+    //   $('#prefectureselector').append(item);
+    // }
+
+    // if (urlParameters.prefecture) {
+    //   $('#prefectureselector').val(urlParameters.prefecture);
+    //   urlParameters.prefecture = null;
+    // }
+
+    // setObservatoryselector("prefectureselector", "observatoryselector", init_flg);
+  }
+
+  async function setPrefectureselector(prefectureElement, observatoryElement, init_flg) {
+
+    $(`#${prefectureElement} > calcite-option`).remove();
     const item = document.createElement("calcite-option");
     item.setAttribute("label", "全国");
     item.setAttribute("value", "全国");
-    $('#prefectureselector').append(item);
-    $('#prefectureselector').val("全国");
+    $(`#${prefectureElement}`).append(item);
+    $(`#${prefectureElement}`).val("全国");
 
     for (var i = 0; i < config.prefecture.length; i++) {
       var area = config.prefecture[i];
       const item = document.createElement("calcite-option");
       item.setAttribute("label", area);
       item.setAttribute("value", area);
-      $('#prefectureselector').append(item);
+      $(`#${prefectureElement}`).append(item);
     }
 
-    if (urlParameters.prefecture) {
-      $('#prefectureselector').val(urlParameters.prefecture);
-      urlParameters.prefecture = null;
+    if (urlParameters[prefectureElement]) {
+      $(`#${prefectureElement}`).val(urlParameters[prefectureElement]);
+      urlParameters[prefectureElement] = null;
     }
 
-    setObservatoryselector(init_flg);
+    setObservatoryselector(prefectureElement, observatoryElement, init_flg);
   }
 
-  async function setObservatoryselector(init_flg) {
+  async function setObservatoryselector(prefectureElement, observatoryElement, init_flg) {
 
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    var prefecture = $(`#${prefectureElement}`).val();
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var month = $('#monthselector').val();
-
     var kansho = $('#kanshoselector').val();
 
     let query = shihyoLayer.createQuery();
@@ -527,35 +615,33 @@ require([
     ];
     query.returnGeometry = false;
 
-    $('#observatoryselector > calcite-option').remove();
+    $(`#${observatoryElement} > calcite-option`).remove();
     const item = document.createElement("calcite-option");
     item.setAttribute("label", "全て");
     item.setAttribute("value", "全て");
-    item.setAttribute("selected", true);
-    $('#observatoryselector').append(item);
-    $('#observatoryselector').val("全て");
+    $(`#${observatoryElement}`).append(item);
+    $(`#${observatoryElement}`).val("全て");
 
     var response = await shihyoLayer.queryFeatures(query);
     var features = response.features;
-    var recordes = [];
 
     for (var i = 0; i < features.length; i++) {
       var area = features[i].attributes["観測地点名リスト"];
       const item = document.createElement("calcite-option");
       item.setAttribute("label", area);
       item.setAttribute("value", area);
-      $('#observatoryselector').append(item);
+      $(`#${observatoryElement}`).append(item);
     }
 
-    if (urlParameters.observatory) {
-      $('#observatoryselector').val(urlParameters.observatory);
-      urlParameters.observatory = null;
+    if (urlParameters[observatoryElement]) {
+      $(`#${observatoryElement}`).val(urlParameters[observatoryElement]);
+      urlParameters[observatoryElement] = null;
     }
   }
 
   function setFilter(zoom_flg) {
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    var prefecture = $('#prefectureselector1').val();
+    var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
     var month = $('#monthselector').val();
     var kansho = $('#kanshoselector').val();
@@ -614,26 +700,99 @@ require([
     }
   }
 
+  //グラフの再描画
   async function draw_charts() {
 
     if (shihyoLayer == null) {
       return;
     }
 
+    //初期化
+    for (const chart in drawnCharts.charts) {
+      if (drawnCharts.charts[chart] != null) {
+        drawnCharts.charts[chart].destroy();
+      }
+    }
+    drawnCharts = {
+      minYear: 9999,
+      maxYear: 0,
+      minValue: 9999,
+      maxValue: 0,
+      charts: {}
+    }
+
+    //各グラフの値を取得
+    var chartDatas = [];
+    for (const graphElement of graphElements) {
+
+      var chartData = await queryChartData(graphElement);
+      if (chartData == null) {
+        continue;
+      }
+
+      //グラフの年表示範囲を取得
+      if (Number(chartData.labels[0]) < drawnCharts.minYear) {
+        drawnCharts.minYear = Number(chartData.labels[0]);
+      }
+      if (Number(chartData.labels[chartData.labels.length - 1]) > drawnCharts.maxYear) {
+        drawnCharts.maxYear = Number(chartData.labels[chartData.labels.length - 1]);
+      }
+      //グラフの値表示範囲を取得
+      let values = chartData.datas.filter(value => value != null);
+      if (Math.min(...values) < drawnCharts.minValue) {
+        drawnCharts.minValue = Math.min(...values);
+      }
+      if (Math.max(...values) > drawnCharts.maxValue) {
+        drawnCharts.maxValue = Math.max(...values);
+      }
+
+      chartDatas.push(chartData);
+    }
+
+    for (const chartData of chartDatas) {
+      //最小の年までラベル、値を挿入
+      if (Number(chartData.labels[0]) > drawnCharts.minYear) {
+        var fill_year = Number(chartData.labels[0]);
+        while (fill_year != drawnCharts.minYear) {
+          chartData.labels.unshift(fill_year);
+          chartData.datas.unshift(null);
+          fill_year--;
+        }
+      }
+      //最大の年までラベル、値を挿入
+      if (Number(chartData.labels[chartData.length - 1]) < drawnCharts.maxYear) {
+        var fill_year = Number(chartData.labels[chartData.length - 1]);
+        while (fill_year != drawnCharts.maxYear) {
+          chartData.labels.push(fill_year);
+          chartData.datas.push(null);
+          fill_year++;
+        }
+      }
+
+      update_chart(chartData.canvas, chartData.title, chartData.labels, chartData.datas);
+    }
+
+  }
+
+  //個別のグラフデータを取得
+  async function queryChartData(graphElement) {
+
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    var prefecture = $(`#${graphElement.prefecture}`).val();
+    var observatory = $(`#${graphElement.observatory}`).val();
 
-    var check = await check_graph_render();
+    var check = await check_graph_render(graphElement.prefecture, graphElement.observatory);
     if (check == false) {
-      $("#graphviewDisableDiv").show();
-      $("#graphviewCanvas").hide();
-      return;
+      $(`#${graphElement.disableDiv}`).show();
+      $(`#${graphElement.canvas}`).hide();
+      $(`#${graphElement.expand}`).hide();
+      return null;
     } else {
-      $("#graphviewDisableDiv").hide();
-      $("#graphviewCanvas").show();
+      $(`#${graphElement.disableDiv}`).hide();
+      $(`#${graphElement.canvas}`).show();
+      $(`#${graphElement.expand}`).show();
     }
 
     var month = $('#monthselector').val();
@@ -650,15 +809,15 @@ require([
     query.orderByFields = "年";
     query.groupByFieldsForStatistics = "年";
 
-    var chat_title = observatory + "観測所";
-    chat_title = chat_title + "　" + shihyotxt;
+    var chart_title = observatory + "観測所";
+    chart_title = chart_title + "　" + shihyotxt;
 
     var expression = field + " <> " + String(32767);
     if (kansho != "すべて") {
       expression = expression + " AND 官署 = '" + kansho + "'"
     }
     if (bunrui == "月別値") {
-      chat_title = chat_title + "　" + monthtxt;
+      chart_title = chart_title + "　" + monthtxt;
       expression = expression + " AND 月 = " + month;
     }
 
@@ -702,28 +861,23 @@ require([
       before_year = year;
     }
 
-    update_chart("graphviewCanvas", chat_title, labels, datas);
-
-    if (observatory != "全て") {
-      $('#chartDiv').removeClass('hidden');
-    } else {
-      $('#chartDiv').addClass('hidden');
+    return {
+      "canvas": graphElement.canvas,
+      "title": chart_title,
+      "labels": labels,
+      "datas": datas
     }
   }
 
-  function update_chart(element, chat_title, labels, datas) {
+  function update_chart(element, chart_title, labels, datas) {
 
     var ctx = document.getElementById(element).getContext('2d');
-
-    if (chart != null) {
-      chart.destroy();
-    }
 
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    // var prefecture = $('#prefectureselector').val();
+    // var observatory = $('#observatoryselector').val();
     var month = $('#monthselector').val();
 
     var chart_type = config["shihyo"].find(value => value.title == shihyo).chart;
@@ -754,18 +908,15 @@ require([
 
     var yLabel = shihyotxt;
 
-    const notnull_datas = datas.filter((item) => {
-      return item !== null && !isNaN(Number(item));
-    });
-    var xAxesMin = Math.floor(Math.min.apply(null, labels) / 10 * 10);
-    var xAxesMax = Math.ceil(Math.max.apply(null, labels) / 10 * 10);
-    var yAxesMin = Math.floor(Math.min.apply(null, notnull_datas) / yAxesStep) * yAxesStep;
+    //最小値と最大値からY軸のメモリ高さを設定
+    var yAxesMin = Math.floor(drawnCharts.minValue / yAxesStep) * yAxesStep;
     if (chart_type == "bar") {
       yAxesMin = 0;
     }
-    var yAxesMax = Math.ceil(Math.max.apply(null, notnull_datas) / yAxesStep) * yAxesStep;
+    var yAxesMax = Math.ceil(drawnCharts.maxValue / yAxesStep) * yAxesStep;
 
-    chart = new Chart(ctx, {
+
+    drawnCharts.charts[element] = new Chart(ctx, {
       type: chart_type,
       data: {
         labels: labels,
@@ -776,7 +927,7 @@ require([
           display: true,
           fontSize: title_fontSize,
           fontColor: '#000000',
-          text: chat_title
+          text: chart_title
         },
         layout: {
           padding: {
@@ -807,6 +958,8 @@ require([
               display: false
             },
             ticks: {
+              min: drawnCharts.minYear,
+              max: drawnCharts.maxYear,
               autoSkip: false,
               fontColor: '#000000',
               callback: function (value, index, values) {
@@ -840,15 +993,15 @@ require([
           }]
         },
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: true
       }
     });
   }
 
   //選択された観測所でグラフを描画できるかチェック
-  async function check_graph_render() {
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+  async function check_graph_render(prefectureElement, observatoryElement) {
+    var prefecture = $(`#${prefectureElement}`).val();
+    var observatory = $(`#${observatoryElement}`).val();
     var kansho = $('#kanshoselector').val();
 
     var result = false;
@@ -888,8 +1041,8 @@ require([
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    var prefecture = $('#prefectureselector1').val();
+    var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
     var month = $('#monthselector').val();
     var kansho = $('#kanshoselector').val();
@@ -996,8 +1149,8 @@ require([
 
   //マップ画像の保存
   async function startMapDownload() {
-    var prefecture = $('#prefectureselector').val();
-    var observatory = $('#observatoryselector').val();
+    var prefecture = $('#prefectureselector1').val();
+    var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
     var month = $('#monthselector').val();
     var kansho = $('#kanshoselector').val();
@@ -1060,7 +1213,7 @@ require([
   //グラフ画像の保存
   async function startGraphDownload() {
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var observatory = $('#observatoryselector').val();
+    var observatory = $('#observatoryselector1').val();
 
     if (observatory == "全て") {
       alert("観測所が選択されていません");

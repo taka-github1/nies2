@@ -11,24 +11,24 @@ body {
 }
 
 #site-header::before {
-    position: absolute;
-    content: "";
-    width: 100%;
-    height: 5px;
-    background: #f1ff2a;
-    background: -moz-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
-    background: -webkit-gradient(linear, left center, right center, from(#64CFFF), color-stop(40%, #e51cd6), color-stop(70%, #f1752a), to(#f1ff2a));
-    background: -webkit-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
-   background: -o-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
-    background: -ms-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
-   background: linear-gradient(to right, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%s);
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 5px;
+  background: #f1ff2a;
+  background: -moz-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+  background: -webkit-gradient(linear, left center, right center, from(#64CFFF), color-stop(40%, #e51cd6), color-stop(70%, #f1752a), to(#f1ff2a));
+  background: -webkit-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+  background: -o-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+  background: -ms-linear-gradient(left, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%);
+  background: linear-gradient(to right, #64CFFF 0%, #e51cd6 40%, #f1752a 70%, #f1ff2a 100%s);
 }
 
 #A-PLAT_logo {
   height: 40px;
   padding-left: 5px;
   margin-top: 10px;
-  margin-right:50px;
+  margin-right: 50px;
 }
 
 #NIES_logo {
@@ -82,18 +82,19 @@ body {
   padding-left: 20px;
 }
 
-#footer_menu{
+#footer_menu {
   list-style: none;
 }
 
-.nav_wrapper{  
+.nav_wrapper {
   display: flex;
   list-style: none;
 }
 
 .nav__item a {
   display: block;
-  padding: 1.5rem 1rem; }
+  padding: 1.5rem 1rem;
+}
 
 
 #mainDiv {
@@ -119,7 +120,7 @@ body {
   width: 95%;
   min-width: 250px;
   padding-left: 15px;
-  padding-right: 15px;
+  /* padding-right: 15px; */
   padding-bottom: 50px;
   display: flex;
   flex-direction: column;
@@ -151,19 +152,66 @@ body {
   width: 100%;
 }
 
-#graphviewCanvas {
-  width: 100%;
+#graphviewContractDiv {
+  display: block;
+  width: 90%;
   height: 100%;
+  font-size: 24px;
+  text-align: center;
+  /* margin-top: 20vh; */
+  /* justify-content: space-around; */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-#graphviewDisableDiv {
+.graphviewBlock {
+  width: 100%;
+  padding: 10px;
+  margin: 10px;
+  /* height: 400px; */
+  /* height: max-content; */
+}
+
+.graphviewCanvas {
+  width: 90% !important;
+  height: 350px !important;
+}
+
+.graphviewExpand {
+  width: 100%;
+  /* text-align: right; */
+  height: 10px;
+  margin-right: 0px;
+}
+
+.graphviewDisable {
   display: block;
+  width: 100%;
+  height: 350px !important;
+  font-size: 24px;
+
+  /* text-align: center; */
+  /* margin-top: 20vh; */
+  /* margin-right: auto;
+  margin-left: auto; */
+  /* justify-items: center; */
+}
+
+
+/* #graphviewExpandDiv {
   width: 100%;
   height: 100%;
   font-size: 24px;
   text-align: center;
-  margin-top: 20vh;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
+
+#graphviewExpandDiv calcite-button {
+  width: 100%;
+  height: 10px;
+  margin-right: 0px;
+} */
 
 h2 {
   font-size: 16px;
@@ -172,7 +220,7 @@ h2 {
   line-height: 2;
   margin-top: 10px;
   margin-bottom: 0px;
-  
+
 }
 
 h3 {
@@ -187,24 +235,25 @@ h3 {
 
 .dropdown {
   position: relative;
-  display:block;
+  display: block;
   width: 100%;
   min-height: 20px;
   font-size: 16px;
-  align-items:center;
+  align-items: center;
   /*overflow: hidden;*/
-  white-space:nowrap;
+  white-space: nowrap;
 }
 
 .download {
   display: block;
   margin-top: 5px;
 }
+
 .hidden {
-  display:none;
+  display: none;
 }
 
-#yearselector{
+#yearselector {
   width: 100%;
   height: 50px;
 }
@@ -217,17 +266,28 @@ h3 {
   border: 1px solid !important;
 }
 
-.esri-ui-corner .esri-expand .esri-widget--panel, .esri-ui-corner .esri-expand .esri-widget--panel-height-only, .esri-ui-corner .esri-component>.esri-widget--panel, .esri-ui-corner .esri-component.esri-widget--panel {
+.esri-ui-corner .esri-expand .esri-widget--panel,
+.esri-ui-corner .esri-expand .esri-widget--panel-height-only,
+.esri-ui-corner .esri-component>.esri-widget--panel,
+.esri-ui-corner .esri-component.esri-widget--panel {
   width: 200px !important;
 }
 
-.esri-popup__inline-actions-container:only-child>.esri-popup__action, .esri-popup__inline-actions-container:only-child>.esri-popup__action-toggle {
+.esri-popup__inline-actions-container:only-child>.esri-popup__action,
+.esri-popup__inline-actions-container:only-child>.esri-popup__action-toggle {
   max-width: 30% !important;
 }
 
 .rowAlignment {
   display: flex;
+  /* justify-content: space-evenly; */
   align-items: center;
+}
+
+.rowAlignment calcite-label {
+  min-width: 150px;
+  max-width: 200px;
+  padding: 5px;
 }
 
 .helpbutton {
@@ -335,7 +395,7 @@ calcite-icon {
   word-break: break-all;
   font-size: 14px;
   padding: 20px 20px 20px 20px;
-  height: 50%; 
+  height: 50%;
   width: 80%;
   margin-top: auto;
   margin-bottom: auto;
@@ -361,6 +421,7 @@ calcite-icon {
   #mainDiv {
     height: calc(100vh - 120px);
   }
+
   #sideDiv {
     left: 60px;
     width: calc(100vw - 60px);
@@ -368,6 +429,7 @@ calcite-icon {
     position: absolute;
     z-index: 2;
   }
+
   #displayDiv {
     left: 60px;
     width: calc(100vw - 60px);
@@ -375,28 +437,37 @@ calcite-icon {
     z-index: 1;
     position: absolute;
   }
-  .rowAlignment {
+
+  /* .rowAlignment {
     display: block;
     align-items: center;
-  }
+  } */
+
   #NIES_logo {
     height: 30px;
     margin-top: 10px;
     padding-left: 5px;
   }
+
   .esri-widget {
     font-size: 9px !important;
   }
-  .esri-ui-corner .esri-expand .esri-widget--panel, .esri-ui-corner .esri-expand .esri-widget--panel-height-only, .esri-ui-corner .esri-component>.esri-widget--panel, .esri-ui-corner .esri-component.esri-widget--panel {
+
+  .esri-ui-corner .esri-expand .esri-widget--panel,
+  .esri-ui-corner .esri-expand .esri-widget--panel-height-only,
+  .esri-ui-corner .esri-component>.esri-widget--panel,
+  .esri-ui-corner .esri-component.esri-widget--panel {
     width: 160px !important;
   }
+
   #site-footer_info {
     display: none;
   }
-  
+
   #attentionDialog-contents {
-    height: 90%; 
+    height: 90%;
   }
+
   .infobutton {
     display: block;
   }
