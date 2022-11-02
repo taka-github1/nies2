@@ -23,7 +23,10 @@ var base_webmap_id = config.base_webmap_id;
 var basemap_group_id = config.basemap_group_id;
 var default_extend = config.default_extend;
 
-//URLパラメータ
+//グラフ複数選択要素
+var graphElements = config.chart_elements;
+
+//URLパラメータの取得
 var urlParameters = {
   "display": getParam("display"),
   "kansho": getParam("kansho"),
@@ -38,35 +41,6 @@ var urlParameters = {
   "observatory3": getParam("observatory3"),
   "expand": getParam("expand"),
 }
-
-//グラフ複数選択要素
-var graphElements = [
-  {
-    "id": 1,
-    "prefecture": "prefectureselector1",
-    "observatory": "observatoryselector1",
-    "canvas": "graphviewCanvas1",
-    "disableDiv": "graphviewDisableDiv1",
-    "expand": "graphviewExpand1"
-  },
-  {
-    "id": 2,
-    "prefecture": "prefectureselector2",
-    "observatory": "observatoryselector2",
-    "canvas": "graphviewCanvas2",
-    "disableDiv": "graphviewDisableDiv2",
-    "expand": "graphviewExpand2"
-  },
-  {
-    "id": 3,
-    "prefecture": "prefectureselector3",
-    "observatory": "observatoryselector3",
-    "canvas": "graphviewCanvas3",
-    "disableDiv": "graphviewDisableDiv3",
-    "expand": "graphviewExpand3"
-  }
-]
-
 
 require([
   "esri/portal/Portal",
@@ -186,9 +160,9 @@ require([
 
     //修正
     if (urlParameters.prefecture1 || urlParameters.observatory1) {
-      setFilter(true);
+      setMapLayerFilter(true);
     } else {
-      setFilter(false);
+      setMapLayerFilter(false);
     }
 
     draw_charts();
@@ -233,7 +207,7 @@ require([
 
   $('#shihyoselector').on("calciteSelectChange", function (event) {
     setForm(false);
-    setFilter(true);
+    setMapLayerFilter(true);
     draw_charts();
   });
 
@@ -241,30 +215,29 @@ require([
     setForm(false);
 
     for (const graphElement of graphElements) {
-      setObservatoryselector(graphElement.prefecture, graphElement.observatory, false);
+      setObservatoryselector(graphElement, false);
     }
-    // setObservatoryselector("prefectureselector", "observatoryselector", false);
-    setFilter(true);
+    setMapLayerFilter(true);
     draw_charts();
   });
 
   for (const graphElement of graphElements) {
-    $(`#${graphElement.prefecture}`).on("calciteSelectChange", function (event) {
-      setObservatoryselector(graphElement.prefecture, graphElement.observatory, true);
+    $(`#${graphElement.prefectureSecector}`).on("calciteSelectChange", function (event) {
+      setObservatoryselector(graphElement, true);
       setForm(false);
-      setFilter(true);
+      setMapLayerFilter(true);
       draw_charts();
     });
 
-    $(`#${graphElement.observatory}`).on("calciteSelectChange", function (event) {
+    $(`#${graphElement.observatorySecector}`).on("calciteSelectChange", function (event) {
       setForm(false);
-      setFilter(true);
+      setMapLayerFilter(true);
       draw_charts();
     });
 
-    $(`#${graphElement.expand}`).on("click", function (event) {
-      console.log(event);
-    });
+    // $(`#${graphElement.expand}`).on("click", function (event) {
+    //   console.log(event);
+    // });
   }
 
   yearSlider.on("thumb-change", function (event) {
@@ -386,29 +359,35 @@ require([
     }
 
     //修正
+    // for (const graphElement of graphElements) {
+    //   var prefecture = $(`#${graphElement.prefectureSecector}`).val();
+    //   if (urlParameters[graphElement.prefectureUrlParameter]) {
+    //     $(`#${graphElement.prefectureSecector}`).val(urlParameters[graphElement.prefectureUrlParameter]);
+    //   }
 
-    var prefecture = $('#prefectureselector1').val();
-    if (urlParameters.prefecture1) {
-      $('#prefectureselector1').val(urlParameters.prefecture1);
-      prefecture = urlParameters.prefecture1;
-    }
+    //   var observatory = $(`#${graphElement.observatorySecector}`).val();
+    //   if (urlParameters[graphElement.observatoryUrlParameter]) {
+    //     $(`#${graphElement.observatorySecector}`).val(urlParameters[graphElement.observatoryUrlParameter]);
+    //   }
+    // }
 
-    var observatory = $('#observatoryselector1').val();
-    if (urlParameters.observatory1) {
-      $('#observatoryselector1').val(urlParameters.observatory1);
-      observatory = urlParameters.observatory1;
-    }
+    // var prefecture = $('#prefectureselector1').val();
+    // var observatory = $('#observatoryselector1').val();
 
 
     if (display == "graphview") {
       $("#mapviewDiv").hide();
       $("#graphviewDiv").show();
+      $("#map_observatory").hide();
+      $("#graph_observatory").show();
       $(".subObservatory").show();
       $('#yearselector-label').addClass('hidden');
       $('#yearselectorDiv').addClass('hidden');
     } else {
       $("#mapviewDiv").show();
       $("#graphviewDiv").hide();
+      $("#map_observatory").show();
+      $("#graph_observatory").hide();
       $(".subObservatory").hide();
       $('#yearselector-label').removeClass('hidden');
       $('#yearselectorDiv').removeClass('hidden');
@@ -450,23 +429,23 @@ require([
       expression = expression + "月 = " + month;
     }
 
-    if (observatory != "全て") {
-      if (expression == "") {
-        query.where = "観測地点名 = '" + observatory + "'";
-      } else {
-        query.where = expression + " AND 観測地点名 = '" + observatory + "'";
-      }
-    } else if (prefecture != "全国") {
-      if (expression == "") {
-        query.where = "都道府県 = '" + prefecture + "'";
-      } else {
-        query.where = expression + " AND 都道府県 = '" + prefecture + "'";
-      }
-    } else {
-      if (expression != "") {
-        query.where = expression;
-      }
-    }
+    // if (observatory != "全て") {
+    //   if (expression == "") {
+    //     query.where = "観測地点名 = '" + observatory + "'";
+    //   } else {
+    //     query.where = expression + " AND 観測地点名 = '" + observatory + "'";
+    //   }
+    // } else if (prefecture != "全国") {
+    //   if (expression == "") {
+    //     query.where = "都道府県 = '" + prefecture + "'";
+    //   } else {
+    //     query.where = expression + " AND 都道府県 = '" + prefecture + "'";
+    //   }
+    // } else {
+    //   if (expression != "") {
+    //     query.where = expression;
+    //   }
+    // }
 
     query.outFields = [
       "年"
@@ -502,43 +481,19 @@ require([
       urlParameters.year = null;
     }
 
+    //修正
     if (!init_flg) {
       return;
     }
 
     for (const graphElement of graphElements) {
-      setPrefectureselector(graphElement.prefecture, graphElement.observatory, init_flg);
+      setPrefectureselector(graphElement, init_flg);
     }
-    // setPrefectureselector("prefectureselector", "observatoryselector", init_flg);
-    // setPrefectureselector("prefectureselector2", "observatoryselector2", init_flg);
-    // setPrefectureselector("prefectureselector3", "observatoryselector3", init_flg);
-
-
-    // $('#prefectureselector > calcite-option').remove();
-    // const item = document.createElement("calcite-option");
-    // item.setAttribute("label", "全国");
-    // item.setAttribute("value", "全国");
-    // $('#prefectureselector').append(item);
-    // $('#prefectureselector').val("全国");
-
-    // for (var i = 0; i < config.prefecture.length; i++) {
-    //   var area = config.prefecture[i];
-    //   const item = document.createElement("calcite-option");
-    //   item.setAttribute("label", area);
-    //   item.setAttribute("value", area);
-    //   $('#prefectureselector').append(item);
-    // }
-
-    // if (urlParameters.prefecture) {
-    //   $('#prefectureselector').val(urlParameters.prefecture);
-    //   urlParameters.prefecture = null;
-    // }
-
-    // setObservatoryselector("prefectureselector", "observatoryselector", init_flg);
   }
 
-  async function setPrefectureselector(prefectureElement, observatoryElement, init_flg) {
+  async function setPrefectureselector(graphElement, init_flg) {
 
+    const prefectureElement = graphElement.prefectureSecector;
     $(`#${prefectureElement} > calcite-option`).remove();
     const item = document.createElement("calcite-option");
     item.setAttribute("label", "全国");
@@ -559,10 +514,13 @@ require([
       urlParameters[prefectureElement] = null;
     }
 
-    setObservatoryselector(prefectureElement, observatoryElement, init_flg);
+    setObservatoryselector(graphElement, init_flg);
   }
 
-  async function setObservatoryselector(prefectureElement, observatoryElement, init_flg) {
+  async function setObservatoryselector(graphElement, init_flg) {
+
+    const prefectureElement = graphElement.prefectureSecector;
+    const observatoryElement = graphElement.observatorySecector;
 
     var prefecture = $(`#${prefectureElement}`).val();
     var shihyo = $('#shihyoselector').val();
@@ -639,7 +597,8 @@ require([
     }
   }
 
-  function setFilter(zoom_flg) {
+  function setMapLayerFilter(zoom_flg) {
+    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
@@ -726,7 +685,7 @@ require([
     for (const graphElement of graphElements) {
 
       var chartData = await queryChartData(graphElement);
-      if (chartData == null) {
+      if (chartData == null || chartData.labels.length == 0) {
         continue;
       }
 
@@ -752,24 +711,43 @@ require([
     for (const chartData of chartDatas) {
       //最小の年までラベル、値を挿入
       if (Number(chartData.labels[0]) > drawnCharts.minYear) {
-        var fill_year = Number(chartData.labels[0]);
+        var fill_year = Number(chartData.labels[0]) - 1;
         while (fill_year != drawnCharts.minYear) {
           chartData.labels.unshift(fill_year);
           chartData.datas.unshift(null);
+          chartData.nulls.unshift(null);
+          chartData.trendValiable.values.unshift({
+            year: fill_year,
+            value: null
+          });
+          chartData.movingAverages.unshift({
+            year: fill_year,
+            value: null
+          });
           fill_year--;
         }
       }
       //最大の年までラベル、値を挿入
       if (Number(chartData.labels[chartData.length - 1]) < drawnCharts.maxYear) {
-        var fill_year = Number(chartData.labels[chartData.length - 1]);
+        var fill_year = Number(chartData.labels[chartData.length - 1]) + 1;
         while (fill_year != drawnCharts.maxYear) {
           chartData.labels.push(fill_year);
           chartData.datas.push(null);
+          chartData.nulls.push(null);
+          chartData.trendValiable.values.push({
+            year: fill_year,
+            value: null
+          });
+          chartData.movingAverages.push({
+            year: fill_year,
+            value: null
+          });
           fill_year++;
         }
       }
 
-      update_chart(chartData.canvas, chartData.title, chartData.labels, chartData.datas);
+      //グラフの描画
+      update_chart(chartData);
     }
 
   }
@@ -780,10 +758,10 @@ require([
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var prefecture = $(`#${graphElement.prefecture}`).val();
-    var observatory = $(`#${graphElement.observatory}`).val();
+    var prefecture = $(`#${graphElement.prefectureSecector}`).val();
+    var observatory = $(`#${graphElement.observatorySecector}`).val();
 
-    var check = await check_graph_render(graphElement.prefecture, graphElement.observatory);
+    var check = await check_graph_render(graphElement);
     if (check == false) {
       $(`#${graphElement.disableDiv}`).show();
       $(`#${graphElement.canvas}`).hide();
@@ -830,8 +808,11 @@ require([
 
     var response = await shihyoLayer.queryFeatures(query);
     var features = response.features;
+
+    var datasets = [];
     var labels = [];
     var datas = [];
+    var nulls = [];
 
     var before_year = "";
     for (var i = 0; i < features.length; i++) {
@@ -844,6 +825,12 @@ require([
         while (fill_year != year) {
           labels.push(fill_year);
           datas.push(null);
+          nulls.push(null);
+          datasets.push({
+            type: "blank",
+            year: fill_year,
+            value: null
+          });
           fill_year++;
         }
         before_year = year - 1;
@@ -851,25 +838,160 @@ require([
 
       //データ欠落年はnullをセット
       while ((before_year + 1) < year) {
+        before_year++;
         labels.push(before_year);
         datas.push(null);
-        before_year++;
+        nulls.push(0);
+
+        datasets.push({
+          type: "nodata",
+          year: before_year,
+          value: null
+        });
       }
 
       labels.push(year);
       datas.push(Math.round(value * 100) / 100);
+      nulls.push(null);
+
+      datasets.push({
+        type: "normal",
+        year: year,
+        value: Math.round(value * 100) / 100
+      });
+
       before_year = year;
     }
 
+    //統計トレンド曲線
+    const trendValiable = getTrendVariable(datasets);
+
+    //中央移動平均5年
+    const beforeOffset = 10;
+    const afterOffset = 0;
+    const movingAverages = getMovingAverage(datasets, beforeOffset, afterOffset)
+
     return {
-      "canvas": graphElement.canvas,
-      "title": chart_title,
-      "labels": labels,
-      "datas": datas
+      canvas: graphElement.canvas,
+      title: chart_title,
+      labels: labels,
+      datas: datas,
+      nulls: nulls,
+      datasets: datasets,
+      trendValiable: trendValiable,
+      movingAverages: movingAverages
     }
   }
 
-  function update_chart(element, chart_title, labels, datas) {
+  //トレンドを求める
+  function getTrendVariable(datasets) {
+
+    let valuebles = datasets.filter((n) => n.type === "normal");
+
+    const len = valuebles.length;
+    const sigX = valuebles.reduce((acc, c) => acc + c.year, 0);
+    const sigY = valuebles.reduce((acc, c) => acc + c.value, 0);
+    const sigXX = valuebles.reduce((acc, c) => acc + c.year * c.year, 0);
+    const sigXY = valuebles.reduce((acc, c) => acc + c.year * c.value, 0);
+    // a(傾き)を求める
+    const a = (len * sigXY - sigX * sigY) / (len * sigXX - Math.pow(sigX, 2));
+    // b(切片)を求める
+    const b = (sigXX * sigY - sigXY * sigX) / (len * sigXX - Math.pow(sigX, 2));
+
+    let values = [];
+    for (const dataset of datasets) {
+      if (dataset.year == valuebles[0].year) {
+        values.push({
+          year: dataset.year,
+          value: valuebles[0].year * a + b
+        });
+      } else if (dataset.year == valuebles[len - 1].year) {
+        values.push({
+          year: dataset.year,
+          value: valuebles[len - 1].year * a + b
+        });
+      } else {
+        values.push({
+          year: dataset.year,
+          value: null
+        });
+      }
+    }
+
+    const trendValiable = {
+      a: Math.floor(a * 1000) / 1000,
+      b: Math.floor(b * 1000) / 1000,
+      values: values
+    }
+    return trendValiable;
+  }
+
+  //移動平均を求める
+  function getMovingAverage(datasets, beforeOffset, afterOffset) {
+    const len = datasets.length;
+    const valuebles = datasets.filter(n => n.type != "blank");
+    let calcStartYear = valuebles[0].year + beforeOffset;
+    if (calcStartYear > valuebles[valuebles.length - 1].year) {
+      calcStartYear = valuebles[valuebles.length - 1].year;
+    }
+
+    let calcEndYear = valuebles[valuebles.length - 1].year - afterOffset;
+    if (calcEndYear < valuebles[0].year) {
+      calcEndYear = valuebles[0].year;
+    }
+    if (calcStartYear == calcEndYear) {
+      return [];
+    }
+
+    let movingAverages = [];
+    for (let i = 0; i < len; i++) {
+      const currentYear = datasets[i].year;
+      if (currentYear < calcStartYear || currentYear > calcEndYear) {
+        movingAverages.push({
+          year: currentYear,
+          value: null
+        });
+      } else {
+        const startYear = currentYear - beforeOffset;
+        const endYear = currentYear + afterOffset;
+
+        let count = 0;
+        let total = 0;
+        for (let j = startYear; j <= endYear; j++) {
+          const currentValue = datasets.find(n => n.year === j).value;
+          if (currentValue === null) continue;
+          count += 1;
+          total += currentValue;
+        }
+        if (count === 0) {
+          movingAverages.push({
+            year: currentYear,
+            value: null
+          });
+        } else {
+          let average = Math.floor((total / count) * 100) / 100;
+          movingAverages.push({
+            year: currentYear,
+            value: average
+          });
+        }
+      }
+    }
+    return movingAverages;
+  }
+
+
+  //グラフの描画
+  function update_chart(chartData) {
+
+    const element = chartData.canvas;
+    const chart_title = chartData.title;
+    const labels = chartData.labels;
+    const datas = chartData.datas;
+    var nulls = chartData.nulls;
+    let movingAverages = chartData.movingAverages.map(n => n.value);
+    let trendValues = chartData.trendValiable.values.map(n => n.value);
+    const rTrend = chartData.trendValiable.a;
 
     var ctx = document.getElementById(element).getContext('2d');
 
@@ -893,8 +1015,49 @@ require([
       scales_fontSize = 9;
     }
 
+    var yLabel = shihyotxt;
+
+    //最小値と最大値からY軸の範囲を設定
+    var yAxesMin = Math.floor(drawnCharts.minValue / yAxesStep) * yAxesStep;
+    if (chart_type == "bar") {
+      yAxesMin = 0;
+    }
+    var yAxesMax = Math.ceil(drawnCharts.maxValue / yAxesStep) * yAxesStep;
+
+    nulls = nulls.map(value => {
+      if (value == null) {
+        return null;
+      } else {
+        return yAxesMin;
+      }
+    });
+
     var datasets = [];
     datasets.push({
+      label: "トレンド(R=" + rTrend + ")",
+      type: "line",
+      data: trendValues,
+      borderColor: config.chart_setting.trendBorderColor,
+      lineTension: 0,
+      borderWidth: 2,
+      pointRadius: 0,
+      spanGaps: true,
+      fill: false
+    });
+    datasets.push({
+      label: "移動平均",
+      type: "line",
+      data: movingAverages,
+      borderColor: config.chart_setting.averageBorderColor,
+      lineTension: 0,
+      borderWidth: 2,
+      pointRadius: 0,
+      spanGaps: true,
+      fill: false
+    });
+    datasets.push({
+      label: shihyotxt,
+      type: chart_type,
       data: datas,
       borderColor: borderColor,
       backgroundColor: backgroundColor,
@@ -905,16 +1068,17 @@ require([
       spanGaps: true,
       fill: false
     });
-
-    var yLabel = shihyotxt;
-
-    //最小値と最大値からY軸のメモリ高さを設定
-    var yAxesMin = Math.floor(drawnCharts.minValue / yAxesStep) * yAxesStep;
-    if (chart_type == "bar") {
-      yAxesMin = 0;
-    }
-    var yAxesMax = Math.ceil(drawnCharts.maxValue / yAxesStep) * yAxesStep;
-
+    datasets.push({
+      label: "欠測値",
+      type: "line",
+      data: nulls,
+      pointBorderColor: config.chart_setting.nullPointBorderColor,
+      pointStyle: 'crossRot',
+      showLine: false,
+      spanGaps: true,
+      pointRadius: 10,
+      pointHoverRadius: 15
+    });
 
     drawnCharts.charts[element] = new Chart(ctx, {
       type: chart_type,
@@ -937,13 +1101,30 @@ require([
           }
         },
         legend: {
-          display: false,
+          display: true,
           position: 'right',
           labels: {
             fontColor: '#000000',
             boxWidth: 20,
             usePointStyle: true,
             padding: 10
+          }
+        },
+        tooltips: {
+          // mode: 'nearest',
+          titleFontSize: 14,
+          bodyFontSize: 14,
+          callbacks: {
+            title: function (tooltipItem, data) {
+              return shihyotxt;
+            },
+            label: function (tooltipItem, data) {
+              if (data.datasets[tooltipItem.datasetIndex].label === "欠測値") {
+                return data.labels[tooltipItem.index] + "年：欠測値";
+              } else {
+                return data.labels[tooltipItem.index] + "年" + "：" + tooltipItem.yLabel;
+              }
+            }
           }
         },
         scales: {
@@ -999,9 +1180,9 @@ require([
   }
 
   //選択された観測所でグラフを描画できるかチェック
-  async function check_graph_render(prefectureElement, observatoryElement) {
-    var prefecture = $(`#${prefectureElement}`).val();
-    var observatory = $(`#${observatoryElement}`).val();
+  async function check_graph_render(graphElement) {
+    var prefecture = $(`#${graphElement.prefectureSecector}`).val();
+    var observatory = $(`#${graphElement.observatorySecector}`).val();
     var kansho = $('#kanshoselector').val();
 
     var result = false;
@@ -1038,6 +1219,7 @@ require([
   }
 
   function download_csv(flg) {
+    //修正
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
@@ -1149,6 +1331,7 @@ require([
 
   //マップ画像の保存
   async function startMapDownload() {
+    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
