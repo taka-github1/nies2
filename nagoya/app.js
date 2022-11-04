@@ -980,7 +980,7 @@ require([
     const len = datasets.length;
     const valuebles = datasets.filter(n => n.type != "blank");
 
-    if (valuebles.length) {
+    if (valuebles.length == 0) {
       return [];
     }
 
