@@ -349,7 +349,56 @@ calcite-icon {
   padding-right: 5px;
 }
 
-#attentionDialog {
+.dialog {
+  display: flex;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0%;
+  right: 0%;
+  z-index: 4;
+  background-color: rgba(70, 70, 70, 0.9);
+}
+
+.dialog-contents {
+  display: block;
+  /* position: inherit; */
+  /* word-break: break-all; */
+  font-size: 14px;
+  padding: 20px 20px 20px 20px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  color: black;
+  overflow-y: auto;
+}
+
+.chart {
+  margin-top: 20px;
+  width: 90%;
+  height: 90%;
+  background-color: #ffffff;
+}
+
+#chartDialogContent { 
+  width: 800px;
+  height: 600px;
+}
+
+.attention {
+  background-color: rgb(255, 242, 204);
+  height: 50%;
+  width: 80%;
+}
+
+.smartFooter {
+  height: 50%;
+  width: 80%;
+  background-color: #bbbbbb;
+}
+
+/* #attentionDialog {
   display: flex;
   position: absolute;
   top: 0px;
@@ -375,7 +424,7 @@ calcite-icon {
   color: black;
   overflow-y: auto;
   background-color: rgb(255, 242, 204);
-}
+} 
 
 #smartFooterDialog {
   display: flex;
@@ -404,7 +453,7 @@ calcite-icon {
   color: black;
   overflow-y: auto;
   background-color: #bbbbbb;
-}
+}*/
 
 .infoPanel {
   margin: 5px;

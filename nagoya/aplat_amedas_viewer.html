@@ -183,9 +183,9 @@
           <button class="normalbutton" id="map_observatory">
             <calcite-icon icon="map" scale="s"></calcite-icon>マップ画像
           </button>
-          <button class="normalbutton" id="graph_observatory" style="display: none">
+          <!-- <button class="normalbutton" id="graph_observatory" style="display: none">
             <calcite-icon icon="graph-time-series" scale="s"></calcite-icon>グラフ画像
-          </button>
+          </button> -->
           <!--
             <calcite-label layout="inline" scale="s">
               画像サイズ 
@@ -214,22 +214,22 @@
       <div id="graphviewDiv">
         <div id="graphviewContractDiv" class="">
           <calcite-block collapsible intl-collapse="折りたたみ" intl-expand="展開" heading="グラフ１" open class="graphviewBlock">
-            <!-- <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand1"
-              class="graphviewExpand"> -->
+            <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand1"
+              class="graphviewExpand">
             </calcite-button>
             <canvas id="graphviewCanvas1" class="graphviewCanvas"></canvas>
             <div id="graphviewDisableDiv1" class="graphviewDisable">観測所を選択してください</div>
           </calcite-block>
           <calcite-block collapsible intl-collapse="折りたたみ" intl-expand="展開" heading="グラフ２" open class="graphviewBlock">
-            <!-- <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand2"
-              class="graphviewExpand"> -->
+            <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand2"
+              class="graphviewExpand">
             </calcite-button>
             <canvas id="graphviewCanvas2" class="graphviewCanvas"></canvas>
             <div id="graphviewDisableDiv2" class="graphviewDisable">観測所を選択してください</div>
           </calcite-block>
           <calcite-block collapsible intl-collapse="折りたたみ" intl-expand="展開" heading="グラフ３" open class="graphviewBlock">
-            <!-- <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand3"
-              class="graphviewExpand"> -->
+            <calcite-button appearance="outline" color="inverse" scale="s" icon-start="expand" id="graphviewExpand3"
+              class="graphviewExpand">
             </calcite-button>
             <canvas id="graphviewCanvas3" class="graphviewCanvas"></canvas>
             <div id="graphviewDisableDiv3" class="graphviewDisable">観測所を選択してください</div>
@@ -258,8 +258,35 @@
     </button>
   </footer>
 
-  <div id="attentionDialog" style="display:none">
-    <div id="attentionDialog-contents">
+  <div id="chartDialog" style="display:none" class="dialog">
+    <div id="chartDialog-contents" class="dialog-contents chart">
+      <h2>
+        グラフ
+      </h2>
+      <calcite-label layout="inline" scale="s">
+        画像サイズ
+        <calcite-select id="exportsizeselector" scale="m" width="half">
+          <calcite-option value="SVGA">SVGA 800×600</calcite-option>
+          <calcite-option value="XGA">XGA 1024×768</calcite-option>
+          <calcite-option value="WXGA">WXGA 1280×800</calcite-option>
+        </calcite-select>
+      </calcite-label>
+      <div id="chartDialogContent">
+        <canvas id="chartDialogCanvas" width="800" height="600"></canvas>
+      </div>
+      <div class="rowAlignment">
+        <button class="normalbutton" id="saveChartImage">
+          <calcite-icon icon="save" scale="s"></calcite-icon>グラフ保存
+        </button>
+        <button class="normalbutton" id="chartDialogClose">
+          <calcite-icon icon="erase" scale="s"></calcite-icon>閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="attentionDialog" style="display:none" class="dialog">
+    <div id="attentionDialog-contents" class="dialog-contents attention">
       <h2>
         注意事項：長期変化傾向の評価について
       </h2>
@@ -285,8 +312,8 @@
       <button class="normalbutton" id="agreebutton">閉じる</button>
     </div>
   </div>
-  <div id="smartFooterDialog" style="display:none">
-    <div id="smartFooterDialog-contents">
+  <div id="smartFooterDialog" style="display:none" class="dialog">
+    <div id="smartFooterDialog-contents" class="dialog-contents smartFooter">
       <h4>
         このサイトは、国立研究開発法人国立環境研究所が運営しています。<br />
         <br />

@@ -7,7 +7,7 @@ var drawnCharts = {
   maxYear: 0,
   minValue: 9999,
   maxValue: 0,
-  charts: {}
+  chartElements: {}
 }
 
 //configの読み込み
@@ -235,10 +235,62 @@ require([
       draw_charts();
     });
 
-    // $(`#${graphElement.expand}`).on("click", function (event) {
-    //   console.log(event);
-    // });
+    //グラフ拡大ボタンのクリック
+    $(`#${graphElement.expand}`).on("click", function (event) {
+      //修正
+      $('#chartDialog').fadeIn();
+
+      //グラフの表示
+      if (drawnCharts.chartElements["chartDialogCanvas"]) {
+        drawnCharts.chartElements["chartDialogCanvas"].destroy();
+      }
+
+      let chartData = JSON.parse(JSON.stringify(drawnCharts.chartDatas[graphElement.canvas]));
+      chartData.canvas = "chartDialogCanvas";
+      drawnCharts.chartDatas[chartData.canvas] = chartData;
+      update_chart(chartData);
+
+      $("#exportsizeselector").val("SVGA");
+      $("#chartDialogCanvas").attr('width', 800);
+      $("#chartDialogCanvas").attr('height', 600);
+      $("#chartDialogContent").css('width', 800);
+      $("#chartDialogContent").css('height', 600);
+    });
   }
+
+  $("#saveChartImage").on("click", function (event) {
+    const chartData = drawnCharts.chartDatas["chartDialogCanvas"]
+
+    var export_text = chartData.title + "_グラフ";
+    var ctx = document.getElementById("chartDialogCanvas");
+
+    // switch ($("#exportsizeselector").val()) {
+    //   case "SVGA":
+    //     ctx.width = 800;
+    //     ctx.height = 600;
+    //     break;
+    //   case "XGA":
+    //     ctx.width = 1024;
+    //     ctx.height = 768;
+    //     break;
+    //   case "WXGA":
+    //     ctx.width = 1280;
+    //     ctx.height = 800;
+    //     break;
+    //   default:
+    //     break;
+    // }
+
+    var a = document.createElement('a');
+    a.href = ctx.toDataURL();
+    a.download = export_text + '.png';
+    a.click();
+
+  });
+
+  $("#chartDialogClose").on("click", function (event) {
+    $('#chartDialog').fadeOut();
+  });
 
   yearSlider.on("thumb-change", function (event) {
     setMapLayerFilter(false);
@@ -265,12 +317,41 @@ require([
     startMapDownload();
   });
 
-  $('#graph_observatory').click(function () {
-    startGraphDownload();
-  });
+  // $('#graph_observatory').click(function () {
+  //   startGraphDownload();
+  // });
 
+  //グラフサイズ変更
+  //修正
   $('#exportsizeselector').on("calciteSelectChange", function (event) {
-    draw_charts();
+
+    switch ($("#exportsizeselector").val()) {
+      case "SVGA":
+        $("#chartDialogCanvas").attr('width', 800);
+        $("#chartDialogCanvas").attr('height', 600);
+        $("#chartDialogContent").css('width', 800);
+        $("#chartDialogContent").css('height', 600);
+        break;
+      case "XGA":
+        $("#chartDialogCanvas").attr('width', 1024);
+        $("#chartDialogCanvas").attr('height', 768);
+        $("#chartDialogContent").css('width', 1024);
+        $("#chartDialogContent").css('height', 768);
+        break;
+      case "WXGA":
+        $("#chartDialogCanvas").attr('width', 1280);
+        $("#chartDialogCanvas").attr('height', 800);
+        $("#chartDialogContent").css('width', 1280);
+        $("#chartDialogContent").css('height', 800);
+        break;
+      default:
+        break;
+    }
+    drawnCharts.chartElements["chartDialogCanvas"].destroy();
+    const chartData = drawnCharts.chartDatas["chartDialogCanvas"];
+    update_chart(chartData);
+
+    // draw_charts();
   });
 
   //サイドパネルの展開・折りたたみ処理
@@ -358,22 +439,6 @@ require([
       urlParameters.month = null;
     }
 
-    //修正
-    // for (const graphElement of graphElements) {
-    //   var prefecture = $(`#${graphElement.prefectureSecector}`).val();
-    //   if (urlParameters[graphElement.prefectureUrlParameter]) {
-    //     $(`#${graphElement.prefectureSecector}`).val(urlParameters[graphElement.prefectureUrlParameter]);
-    //   }
-
-    //   var observatory = $(`#${graphElement.observatorySecector}`).val();
-    //   if (urlParameters[graphElement.observatoryUrlParameter]) {
-    //     $(`#${graphElement.observatorySecector}`).val(urlParameters[graphElement.observatoryUrlParameter]);
-    //   }
-    // }
-
-    // var prefecture = $('#prefectureselector1').val();
-    // var observatory = $('#observatoryselector1').val();
-
 
     if (display == "graphview") {
       $("#mapviewDiv").hide();
@@ -428,24 +493,6 @@ require([
       }
       expression = expression + "月 = " + month;
     }
-
-    // if (observatory != "全て") {
-    //   if (expression == "") {
-    //     query.where = "観測地点名 = '" + observatory + "'";
-    //   } else {
-    //     query.where = expression + " AND 観測地点名 = '" + observatory + "'";
-    //   }
-    // } else if (prefecture != "全国") {
-    //   if (expression == "") {
-    //     query.where = "都道府県 = '" + prefecture + "'";
-    //   } else {
-    //     query.where = expression + " AND 都道府県 = '" + prefecture + "'";
-    //   }
-    // } else {
-    //   if (expression != "") {
-    //     query.where = expression;
-    //   }
-    // }
 
     query.outFields = [
       "年"
@@ -667,9 +714,9 @@ require([
     }
 
     //初期化
-    for (const chart in drawnCharts.charts) {
-      if (drawnCharts.charts[chart] != null) {
-        drawnCharts.charts[chart].destroy();
+    for (const chart in drawnCharts.chartElements) {
+      if (drawnCharts.chartElements[chart] != null) {
+        drawnCharts.chartElements[chart].destroy();
       }
     }
     drawnCharts = {
@@ -677,11 +724,12 @@ require([
       maxYear: 0,
       minValue: 9999,
       maxValue: 0,
-      charts: {}
+      chartElements: {},
+      chartDatas: {}
     }
 
     //各グラフの値を取得
-    var chartDatas = [];
+    var datas = [];
     for (const graphElement of graphElements) {
 
       var chartData = await queryChartData(graphElement);
@@ -705,22 +753,22 @@ require([
         drawnCharts.maxValue = Math.max(...values);
       }
 
-      chartDatas.push(chartData);
+      datas.push(chartData);
     }
 
-    for (const chartData of chartDatas) {
+    for (const data of datas) {
       //最小の年までラベル、値を挿入
-      if (Number(chartData.labels[0]) > drawnCharts.minYear) {
-        var fill_year = Number(chartData.labels[0]) - 1;
+      if (Number(data.labels[0]) > drawnCharts.minYear) {
+        var fill_year = Number(data.labels[0]) - 1;
         while (fill_year != drawnCharts.minYear) {
-          chartData.labels.unshift(fill_year);
-          chartData.datas.unshift(null);
-          chartData.nulls.unshift(null);
-          chartData.trendValiable.values.unshift({
+          data.labels.unshift(fill_year);
+          data.datas.unshift(null);
+          data.nulls.unshift(null);
+          data.trendValiable.values.unshift({
             year: fill_year,
             value: null
           });
-          chartData.movingAverages.unshift({
+          data.movingAverages.unshift({
             year: fill_year,
             value: null
           });
@@ -728,17 +776,17 @@ require([
         }
       }
       //最大の年までラベル、値を挿入
-      if (Number(chartData.labels[chartData.length - 1]) < drawnCharts.maxYear) {
-        var fill_year = Number(chartData.labels[chartData.length - 1]) + 1;
+      if (Number(data.labels[data.length - 1]) < drawnCharts.maxYear) {
+        var fill_year = Number(data.labels[data.length - 1]) + 1;
         while (fill_year != drawnCharts.maxYear) {
-          chartData.labels.push(fill_year);
-          chartData.datas.push(null);
-          chartData.nulls.push(null);
-          chartData.trendValiable.values.push({
+          data.labels.push(fill_year);
+          data.datas.push(null);
+          data.nulls.push(null);
+          data.trendValiable.values.push({
             year: fill_year,
             value: null
           });
-          chartData.movingAverages.push({
+          data.movingAverages.push({
             year: fill_year,
             value: null
           });
@@ -747,7 +795,7 @@ require([
       }
 
       //グラフの描画
-      update_chart(chartData);
+      update_chart(data);
     }
 
   }
@@ -1101,7 +1149,9 @@ require([
       });
     }
 
-    drawnCharts.charts[element] = new Chart(ctx, {
+    drawnCharts.chartDatas[element] = chartData;
+
+    drawnCharts.chartElements[element] = new Chart(ctx, {
       type: chart_type,
       data: {
         labels: labels,
@@ -1415,25 +1465,25 @@ require([
   }
 
   //グラフ画像の保存
-  async function startGraphDownload() {
-    var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var observatory = $('#observatoryselector1').val();
+  // function startGraphDownload(title, canvasElement) {
+  //   var shihyotxt = $('#shihyoselector calcite-option:selected').text();
+  //   var observatory = $('#observatoryselector1').val();
 
-    if (observatory == "全て") {
-      alert("観測所が選択されていません");
-      return;
-    }
+  //   if (observatory == "全て") {
+  //     alert("観測所が選択されていません");
+  //     return;
+  //   }
 
-    var export_text = observatory + "観測所_";
-    export_text += shihyotxt;
-    export_text += "_グラフ";
+  //   var export_text = observatory + "観測所_";
+  //   export_text += shihyotxt;
+  //   export_text += "_グラフ";
 
-    var ctx = document.getElementById("graphviewCanvas");
-    var a = document.createElement('a');
-    a.href = ctx.toDataURL();
-    a.download = export_text + '.png';
-    a.click();
-  }
+  //   var ctx = document.getElementById(canvasElement);
+  //   var a = document.createElement('a');
+  //   a.href = ctx.toDataURL();
+  //   a.download = export_text + '.png';
+  //   a.click();
+  // }
 });
 
 //URLパラメータの取得
