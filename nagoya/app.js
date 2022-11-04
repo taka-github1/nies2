@@ -241,15 +241,15 @@ require([
   }
 
   yearSlider.on("thumb-change", function (event) {
-    setFilter(false);
+    setMapLayerFilter(false);
   });
   yearSlider.on("thumb-drag", function (event) {
-    setFilter(false);
+    setMapLayerFilter(false);
   });
 
   $('#monthselector').on("calciteSelectChange", function (event) {
     setForm(false);
-    setFilter(false);
+    setMapLayerFilter(false);
     draw_charts();
   });
 
@@ -476,7 +476,7 @@ require([
     var year = yearSlider.values[0];
     if (urlParameters.year) {
       yearSlider.values[0] = urlParameters.year;
-      setFilter(false);
+      setMapLayerFilter(false);
       year = Number(urlParameters.year);
       urlParameters.year = null;
     }
@@ -919,6 +919,7 @@ require([
     const trendValiable = {
       a: Math.floor(a * 1000) / 1000,
       b: Math.floor(b * 1000) / 1000,
+      r: Math.floor(a * 100 * 100) / 100,
       values: values
     }
     return trendValiable;
@@ -991,7 +992,7 @@ require([
     var nulls = chartData.nulls;
     let movingAverages = chartData.movingAverages.map(n => n.value);
     let trendValues = chartData.trendValiable.values.map(n => n.value);
-    const rTrend = Math.round(chartData.trendValiable.a * 100);
+    const rTrend = chartData.trendValiable.r;
 
     var ctx = document.getElementById(element).getContext('2d');
 
@@ -1023,7 +1024,11 @@ require([
       yAxesMin = 0;
     }
     var yAxesMax = Math.ceil(drawnCharts.maxValue / yAxesStep) * yAxesStep;
+    if (yAxesMin == yAxesMax) {
+      yAxesMax = yAxesMax + yAxesStep;
+    }
 
+    //欠測値のY軸表示高さ
     nulls = nulls.map(value => {
       if (value == null) {
         return null;
@@ -1033,6 +1038,8 @@ require([
     });
 
     var datasets = [];
+
+    //トレンドデータのグラフ
     datasets.push({
       label: config.chart_setting.trend.label + "(R=" + rTrend + ")",
       type: "line",
@@ -1046,6 +1053,8 @@ require([
       spanGaps: true,
       fill: false
     });
+
+    //移動平均のグラフ
     datasets.push({
       label: config.chart_setting.average.label,
       type: "line",
@@ -1059,6 +1068,8 @@ require([
       spanGaps: true,
       fill: false
     });
+
+    //通常データのグラフ
     datasets.push({
       label: shihyotxt,
       type: chart_type,
@@ -1067,24 +1078,28 @@ require([
       backgroundColor: backgroundColor,
       lineTension: 0,
       pointStyle: 'circle',
-      borderWidth: 1,
+      borderWidth: 0.5,
       radius: 3,
       spanGaps: true,
       fill: false
     });
-    datasets.push({
-      label: config.chart_setting.nodata.label,
-      type: "line",
-      data: nulls,
-      pointBorderColor: config.chart_setting.nodata.pointBorderColor,
-      pointBackgroundColor: config.chart_setting.nodata.pointBorderColor,
-      borderColor: config.chart_setting.nodata.pointBorderColor,
-      pointStyle: 'crossRot',
-      showLine: false,
-      spanGaps: true,
-      pointRadius: 10,
-      pointHoverRadius: 15
-    });
+
+    //欠測値のグラフ
+    if (nulls.filter(n => n != null).length > 0) {
+      datasets.push({
+        label: config.chart_setting.nodata.label,
+        type: "line",
+        data: nulls,
+        pointBorderColor: config.chart_setting.nodata.pointBorderColor,
+        pointBackgroundColor: config.chart_setting.nodata.pointBorderColor,
+        borderColor: config.chart_setting.nodata.pointBorderColor,
+        pointStyle: 'crossRot',
+        showLine: false,
+        spanGaps: true,
+        pointRadius: 10,
+        pointHoverRadius: 15
+      });
+    }
 
     drawnCharts.charts[element] = new Chart(ctx, {
       type: chart_type,
@@ -1180,7 +1195,7 @@ require([
           }]
         },
         responsive: true,
-        maintainAspectRatio: true
+        maintainAspectRatio: false
       }
     });
   }
