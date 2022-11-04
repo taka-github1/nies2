@@ -979,6 +979,11 @@ require([
     const afterOffset = config.chart_setting.average.afterOffset;
     const len = datasets.length;
     const valuebles = datasets.filter(n => n.type != "blank");
+
+    if (valuebles.length) {
+      return [];
+    }
+
     let calcStartYear = valuebles[0].year + beforeOffset;
     if (calcStartYear > valuebles[valuebles.length - 1].year) {
       calcStartYear = valuebles[valuebles.length - 1].year;
