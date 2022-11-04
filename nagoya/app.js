@@ -24,7 +24,7 @@ var basemap_group_id = config.basemap_group_id;
 var default_extend = config.default_extend;
 
 //グラフ複数選択要素
-var graphElements = config.chart_elements;
+var graphElements = config.chart_setting.elements;
 
 //URLパラメータの取得
 var urlParameters = {
@@ -866,10 +866,8 @@ require([
     //統計トレンド曲線
     const trendValiable = getTrendVariable(datasets);
 
-    //中央移動平均5年
-    const beforeOffset = 10;
-    const afterOffset = 0;
-    const movingAverages = getMovingAverage(datasets, beforeOffset, afterOffset)
+    //中央移動平均
+    const movingAverages = getMovingAverage(datasets)
 
     return {
       canvas: graphElement.canvas,
@@ -927,7 +925,9 @@ require([
   }
 
   //移動平均を求める
-  function getMovingAverage(datasets, beforeOffset, afterOffset) {
+  function getMovingAverage(datasets) {
+    const beforeOffset = config.chart_setting.average.beforeOffset;
+    const afterOffset = config.chart_setting.average.afterOffset;
     const len = datasets.length;
     const valuebles = datasets.filter(n => n.type != "blank");
     let calcStartYear = valuebles[0].year + beforeOffset;
@@ -991,7 +991,7 @@ require([
     var nulls = chartData.nulls;
     let movingAverages = chartData.movingAverages.map(n => n.value);
     let trendValues = chartData.trendValiable.values.map(n => n.value);
-    const rTrend = chartData.trendValiable.a;
+    const rTrend = Math.round(chartData.trendValiable.a * 100);
 
     var ctx = document.getElementById(element).getContext('2d');
 
@@ -1034,23 +1034,27 @@ require([
 
     var datasets = [];
     datasets.push({
-      label: "トレンド(R=" + rTrend + ")",
+      label: config.chart_setting.trend.label + "(R=" + rTrend + ")",
       type: "line",
       data: trendValues,
-      borderColor: config.chart_setting.trendBorderColor,
+      borderColor: config.chart_setting.trend.borderColor,
+      backgroundColor: config.chart_setting.trend.borderColor,
       lineTension: 0,
       borderWidth: 2,
+      pointStyle: 'rect',
       pointRadius: 0,
       spanGaps: true,
       fill: false
     });
     datasets.push({
-      label: "移動平均",
+      label: config.chart_setting.average.label,
       type: "line",
       data: movingAverages,
-      borderColor: config.chart_setting.averageBorderColor,
-      lineTension: 0,
+      borderColor: config.chart_setting.average.borderColor,
+      backgroundColor: config.chart_setting.average.borderColor,
+      lineTension: 0.4,
       borderWidth: 2,
+      pointStyle: 'rect',
       pointRadius: 0,
       spanGaps: true,
       fill: false
@@ -1069,10 +1073,12 @@ require([
       fill: false
     });
     datasets.push({
-      label: "欠測値",
+      label: config.chart_setting.nodata.label,
       type: "line",
       data: nulls,
-      pointBorderColor: config.chart_setting.nullPointBorderColor,
+      pointBorderColor: config.chart_setting.nodata.pointBorderColor,
+      pointBackgroundColor: config.chart_setting.nodata.pointBorderColor,
+      borderColor: config.chart_setting.nodata.pointBorderColor,
       pointStyle: 'crossRot',
       showLine: false,
       spanGaps: true,

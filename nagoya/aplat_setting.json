@@ -9,44 +9,6 @@
     "ymax": 44.3821
   },
   "defalt_year": 2019,
-  "chartArea_backgroundColor": "rgba(230,238,255,1)",
-  "chart_setting": {
-    "averageBorderColor": "rgba(0,0,255,1)",
-    "trendBorderColor": "rgba(255,0,0,1)",
-    "nullPointBorderColor": "rgba(255,0,0,1)"
-  },
-  "chart_elements": [
-    {
-      "id": 1,
-      "prefectureSecector": "prefectureselector1",
-      "observatorySecector": "observatoryselector1",
-      "prefectureUrlParameter": "prefecture1",
-      "observatoryUrlParameter": "observatory1",
-      "canvas": "graphviewCanvas1",
-      "disableDiv": "graphviewDisableDiv1",
-      "expand": "graphviewExpand1"
-    },
-    {
-      "id": 2,
-      "prefectureSecector": "prefectureselector2",
-      "observatorySecector": "observatoryselector2",
-      "prefectureUrlParameter": "prefecture2",
-      "observatoryUrlParameter": "observatory2",
-      "canvas": "graphviewCanvas2",
-      "disableDiv": "graphviewDisableDiv2",
-      "expand": "graphviewExpand2"
-    },
-    {
-      "id": 3,
-      "prefectureSecector": "prefectureselector3",
-      "observatorySecector": "observatoryselector3",
-      "prefectureUrlParameter": "prefecture3",
-      "observatoryUrlParameter": "observatory3",
-      "canvas": "graphviewCanvas3",
-      "disableDiv": "graphviewDisableDiv3",
-      "expand": "graphviewExpand3"
-    }
-  ],
   "prefecture": [
     "北海道",
     "青森",
@@ -329,5 +291,53 @@
       "backgroundColor": "rgba(84,130,53,1)",
       "yAxesStep": 20
     }
-  ]
+  ],
+  "chart_setting": {
+    "nodata": {
+      "label": "欠測値",
+      "pointBorderColor": "rgba(255,0,0,1)"
+    },
+    "trend": {
+      "label": "トレンド",
+      "borderColor": "rgba(255,0,0,1)"
+    },
+    "average": {
+      "label": "中央移動平均（5年）",
+      "borderColor": "rgba(0,0,255,1)",
+      "beforeOffset": 2,
+      "afterOffset": 2
+    },
+    "elements": [
+      {
+        "id": 1,
+        "prefectureSecector": "prefectureselector1",
+        "observatorySecector": "observatoryselector1",
+        "prefectureUrlParameter": "prefecture1",
+        "observatoryUrlParameter": "observatory1",
+        "canvas": "graphviewCanvas1",
+        "disableDiv": "graphviewDisableDiv1",
+        "expand": "graphviewExpand1"
+      },
+      {
+        "id": 2,
+        "prefectureSecector": "prefectureselector2",
+        "observatorySecector": "observatoryselector2",
+        "prefectureUrlParameter": "prefecture2",
+        "observatoryUrlParameter": "observatory2",
+        "canvas": "graphviewCanvas2",
+        "disableDiv": "graphviewDisableDiv2",
+        "expand": "graphviewExpand2"
+      },
+      {
+        "id": 3,
+        "prefectureSecector": "prefectureselector3",
+        "observatorySecector": "observatoryselector3",
+        "prefectureUrlParameter": "prefecture3",
+        "observatoryUrlParameter": "observatory3",
+        "canvas": "graphviewCanvas3",
+        "disableDiv": "graphviewDisableDiv3",
+        "expand": "graphviewExpand3"
+      }
+    ]
+  }
 }
