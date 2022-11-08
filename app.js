@@ -64,15 +64,15 @@ require([
 ], function (Portal, OAuthInfo, identityManager, Map, WebMap, Basemap, MapView, TileLayer, FeatureLayer,
   Home, Swipe, Legend, Expand, BasemapGallery, Slider, Extent, Renderer, LocalBasemapsSource) {
 
-  // var portalUrl = "https://nies.maps.arcgis.com";
+  var portalUrl = "https://nies.maps.arcgis.com";
 
-  // var info = new OAuthInfo({
-  //   appId: config.appId,
-  //   popup: false
-  // });
+  var info = new OAuthInfo({
+    appId: config.appId,
+    popup: false
+  });
 
-  // identityManager.registerOAuthInfos([info]);
-  // identityManager.getCredential(portalUrl);
+  identityManager.registerOAuthInfos([info]);
+  identityManager.getCredential(portalUrl);
 
   initForm();
 
