@@ -46,6 +46,7 @@ require([
   "esri/portal/Portal",
   "esri/identity/OAuthInfo",
   "esri/identity/IdentityManager",
+  "esri/core/reactiveUtils",
   "esri/Map",
   "esri/WebMap",
   "esri/Basemap",
@@ -58,11 +59,12 @@ require([
   "esri/widgets/Expand",
   "esri/widgets/BasemapGallery",
   "esri/widgets/Slider",
+  "esri/widgets/ScaleBar",
   "esri/geometry/Extent",
   "esri/renderers/Renderer",
   "esri/widgets/BasemapGallery/support/LocalBasemapsSource"
-], function (Portal, OAuthInfo, identityManager, Map, WebMap, Basemap, MapView, TileLayer, FeatureLayer,
-  Home, Swipe, Legend, Expand, BasemapGallery, Slider, Extent, Renderer, LocalBasemapsSource) {
+], function (Portal, OAuthInfo, identityManager, reactiveUtils, Map, WebMap, Basemap, MapView, TileLayer, FeatureLayer,
+  Home, Swipe, Legend, Expand, BasemapGallery, Slider, ScaleBar, Extent, Renderer, LocalBasemapsSource) {
 
   // var portalUrl = "https://nies.maps.arcgis.com";
 
@@ -87,28 +89,43 @@ require([
     map: map,
     zoom: 14,
     constraints: {
-      minScale: 50000000,
-      maxScale: 250000
+      lods: [{ scale: 250000 }, { scale: 500000 }, { scale: 1000000 }, { scale: 2500000 },
+      { scale: 5000000 }, { scale: 10000000 }, { scale: 25000000 }, { scale: 50000000 }],
     }
   });
 
   var shihyoLayer = null;
+  var kanshoDisconnectTable = null;
+  var amedasDisconnectTable = null;
 
   var homeBtn = new Home({
     view: view
   });
   view.ui.add(homeBtn, "top-left");
 
-  var basemapGallery = new BasemapGallery({
+  //スケールバー
+  var scaleBar = new ScaleBar({
     view: view,
-    source: {
-      query: {
-        id: basemap_group_id
-      }
-    },
-    container: document.createElement("div")
+    style: "line",
+    unit: "metric"
+  });
+  view.ui.add(scaleBar, "bottom-left");
+
+  //マップ設定
+  const mapSettingWidget = document.getElementById("mapSettingWidget");
+  mapSettingWidget.style.display = "block";
+
+  var settingExpand = new Expand({
+    view: view,
+    expandIconClass: "esri-icon-settings",
+    content: mapSettingWidget,
+    expanded: false,
+    mode: "floating"
   });
 
+  view.ui.add(settingExpand, "top-left");
+
+  //凡例
   var legend = new Legend({
     view: view
   });
@@ -121,6 +138,17 @@ require([
   });
 
   view.ui.add(lgExpand, "bottom-right");
+
+  //背景地図選択
+  var basemapGallery = new BasemapGallery({
+    view: view,
+    source: {
+      query: {
+        id: basemap_group_id
+      }
+    },
+    container: document.createElement("div")
+  });
 
   var bgExpand = new Expand({
     view: view,
@@ -264,23 +292,6 @@ require([
     var export_text = chartData.title + "_グラフ";
     var ctx = document.getElementById("chartDialogCanvas");
 
-    // switch ($("#exportsizeselector").val()) {
-    //   case "SVGA":
-    //     ctx.width = 800;
-    //     ctx.height = 600;
-    //     break;
-    //   case "XGA":
-    //     ctx.width = 1024;
-    //     ctx.height = 768;
-    //     break;
-    //   case "WXGA":
-    //     ctx.width = 1280;
-    //     ctx.height = 800;
-    //     break;
-    //   default:
-    //     break;
-    // }
-
     var a = document.createElement('a');
     a.href = ctx.toDataURL();
     a.download = export_text + '.png';
@@ -317,12 +328,29 @@ require([
     startMapDownload();
   });
 
-  // $('#graph_observatory').click(function () {
-  //   startGraphDownload();
-  // });
+  $('#mapscalecheckbox').on("calciteCheckboxChange", function (event) {
+    const checkbox = document.getElementById("mapscalecheckbox");
+    const selector = document.getElementById("mapscaleselector");
+    if (checkbox.checked) {
+      selector.removeAttribute("disabled");
+    } else {
+      selector.setAttribute("disabled", true);
+    }
+  });
+
+  $('#mapscaleselector').on("calciteSelectChange", function (event) {
+    view.scale = event.target.value;
+  });
+
+  //マップの縮尺変更時に固定縮尺の表示も切り替える
+  reactiveUtils.when(() => view.stationary === true, () => {
+    if (view.scale) {
+      const selector = document.getElementById("mapscaleselector");
+      selector.value = view.scale;
+    }
+  });
 
   //グラフサイズ変更
-  //修正
   $('#exportsizeselector').on("calciteSelectChange", function (event) {
 
     switch ($("#exportsizeselector").val()) {
@@ -376,6 +404,8 @@ require([
   });
 
 
+
+
   function initForm() {
     var selector = document.getElementById("shihyoselector");
 
@@ -388,7 +418,7 @@ require([
       var bunrui = shihyo[i]["bunrui"];
 
       if (bunrui != group_title) {
-        var group = document.createElement("calcite-option-group");
+        group = document.createElement("calcite-option-group");
         group.setAttribute('label', bunrui);
         group.innerHTML = bunrui;
         selector.appendChild(group);
@@ -480,6 +510,17 @@ require([
       }
     }
 
+    //テーブルの初期化
+    var tables = map.allTables.items;
+    for (let i = 0; i < tables.length; i++) {
+      if (tables[i].title == config.disconnect.kansho_table) {
+        kanshoDisconnectTable = tables[i];
+      }
+      if (tables[i].title == config.disconnect.amedas_table) {
+        amedasDisconnectTable = tables[i];
+      }
+    }
+
     let query = shihyoLayer.createQuery();
 
     var expression = "";
@@ -493,6 +534,7 @@ require([
       }
       expression = expression + "月 = " + month;
     }
+    query.where = expression;
 
     query.outFields = [
       "年"
@@ -569,6 +611,7 @@ require([
     const prefectureElement = graphElement.prefectureSecector;
     const observatoryElement = graphElement.observatorySecector;
 
+    var display = $('#displayselector').val();
     var prefecture = $(`#${prefectureElement}`).val();
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
@@ -601,16 +644,16 @@ require([
     }
 
     query.outFields = [
-      "都道府県", "地点番号", "観測地点名"
+      "官署", "地点番号", "観測地点名"
     ];
-    query.orderByFields = "地点番号";
-    query.groupByFieldsForStatistics = ["地点番号", "観測地点名"];
+    query.orderByFields = ["官署 DESC", "地点番号"];
+    query.groupByFieldsForStatistics = ["官署", "地点番号", "観測地点名"];
 
     query.outStatistics = [
       {
         statisticType: "min",
-        onStatisticField: "都道府県",
-        outStatisticFieldName: "都道府県リスト"
+        onStatisticField: "官署",
+        outStatisticFieldName: "官署リスト"
       },
       {
         statisticType: "min",
@@ -620,22 +663,34 @@ require([
     ];
     query.returnGeometry = false;
 
+    $(`#${observatoryElement} > calcite-option-group`).remove();
     $(`#${observatoryElement} > calcite-option`).remove();
     const item = document.createElement("calcite-option");
-    item.setAttribute("label", "全て");
-    item.setAttribute("value", "全て");
+    item.setAttribute("label", "");
+    item.setAttribute("value", "");
     $(`#${observatoryElement}`).append(item);
-    $(`#${observatoryElement}`).val("全て");
+    $(`#${observatoryElement}`).val("");
 
     var response = await shihyoLayer.queryFeatures(query);
     var features = response.features;
 
+    var oldKansho = "";
+    var group
     for (var i = 0; i < features.length; i++) {
+      var kansho = features[i].attributes["官署リスト"];
+      if (oldKansho != kansho) {
+        group = document.createElement("calcite-option-group");
+        group.setAttribute('label', kansho);
+        group.innerHTML = kansho;
+        $(`#${observatoryElement}`).append(group);
+        oldKansho = kansho;
+      }
+
       var area = features[i].attributes["観測地点名リスト"];
       const item = document.createElement("calcite-option");
       item.setAttribute("label", area);
       item.setAttribute("value", area);
-      $(`#${observatoryElement}`).append(item);
+      group.append(item);
     }
 
     if (urlParameters[observatoryElement]) {
@@ -666,13 +721,13 @@ require([
       expression = expression + " AND 官署 = '" + kansho + "'";
     }
 
-    if (prefecture != "全国" && observatory != "全て") {
+    if (prefecture != "全国" && observatory != "") {
       shihyoLayer.definitionExpression = expression + " AND 都道府県 = '" + prefecture + "' AND 観測地点名 = '" + observatory + "'";
 
       if (zoom_flg) {
         zoomToLayer();
       }
-    } else if (observatory != "全て") {
+    } else if (observatory != "") {
       shihyoLayer.definitionExpression = expression + " AND 観測地点名 = '" + observatory + "'";
 
       if (zoom_flg) {
@@ -692,19 +747,27 @@ require([
 
 
     function zoomToLayer() {
+      const checkbox = document.getElementById("mapscalecheckbox");
+      const selector = document.getElementById("mapscaleselector");
       let opts = {
         duration: 2000
       };
       return shihyoLayer.queryExtent().then(function (response) {
-        view.goTo(response.extent.clone().expand(1.2), opts)
-          .catch(function (error) {
-            if (error.name != "AbortError") {
-              console.error(error);
-            }
-          });
+        if (response.extent) {
+          if (checkbox.checked) {
+            view.goTo({
+              center: response.extent.center,
+              scale: selector.value
+            }, opts);
+          } else {
+            view.goTo(response.extent.clone().expand(1.2), opts);
+          }
+        }
       });
     }
   }
+
+
 
   //グラフの再描画
   async function draw_charts() {
@@ -772,6 +835,7 @@ require([
             year: fill_year,
             value: null
           });
+          data.disconnectValues.unshift(null);
           fill_year--;
         }
       }
@@ -790,6 +854,7 @@ require([
             year: fill_year,
             value: null
           });
+          data.disconnectValues.push(null);
           fill_year++;
         }
       }
@@ -809,8 +874,8 @@ require([
     var prefecture = $(`#${graphElement.prefectureSecector}`).val();
     var observatory = $(`#${graphElement.observatorySecector}`).val();
 
-    var check = await check_graph_render(graphElement);
-    if (check == false) {
+    var chitenId = await getChitenId(graphElement);
+    if (chitenId == null) {
       $(`#${graphElement.disableDiv}`).show();
       $(`#${graphElement.canvas}`).hide();
       $(`#${graphElement.expand}`).hide();
@@ -834,9 +899,6 @@ require([
     ];
     query.orderByFields = "年";
     query.groupByFieldsForStatistics = "年";
-
-    var chart_title = observatory + "観測所";
-    chart_title = chart_title + "　" + shihyotxt;
 
     var expression = field + " <> " + String(32767);
     if (kansho != "すべて") {
@@ -911,13 +973,26 @@ require([
       before_year = year;
     }
 
+    const normalDatasets = datasets.filter(n => n.type === "normal")
+    const startYear = normalDatasets[0].year;
+    const endYear = normalDatasets[normalDatasets.length - 1].year;
+
+    if (normalDatasets.length == 0) return null;
+
+    var chart_title = observatory + "観測所";
+    chart_title = `${observatory}観測所　${startYear}年～${endYear}年`;
+
     //統計トレンド曲線
     const trendValiable = getTrendVariable(datasets);
 
     //中央移動平均
-    const movingAverages = getMovingAverage(datasets)
+    const movingAverages = getMovingAverage(datasets);
+
+    //統計切断
+    const disconnectValues = await getDisconnectValue(graphElement, chitenId, datasets);
 
     return {
+      chitenId: chitenId,
       canvas: graphElement.canvas,
       title: chart_title,
       labels: labels,
@@ -925,8 +1000,87 @@ require([
       nulls: nulls,
       datasets: datasets,
       trendValiable: trendValiable,
-      movingAverages: movingAverages
+      movingAverages: movingAverages,
+      disconnectValues: disconnectValues
     }
+  }
+
+  //統計切断情報を取得
+  async function getDisconnectValue(graphElement, chitenId, datasets) {
+    var shihyo = $('#shihyoselector').val();
+    var kansho = $(`#${graphElement.observatorySecector} calcite-option:selected`).parent().text();
+
+    var cuttings = [];
+
+    //気象官署の場合の切断情報の取得
+    if (kansho == "気象官署") {
+      const disconnect = config.shihyo.find(n => n.title == shihyo).disconnect.kansho;
+
+      const query = kanshoDisconnectTable.createQuery();
+      query.where = `地点番号 = ${chitenId}`;
+      query.outFields = ["年", "月", "区分", disconnect.field, "内容"]
+      query.orderByFields = ["年", "月"];
+
+      const result = await kanshoDisconnectTable.queryFeatures(query);
+      for (const feature of result.features) {
+        const year = feature["attributes"]["年"];
+        const month = feature["attributes"]["月"];
+        const kubun = feature["attributes"]["区分"];
+        const data = feature["attributes"][disconnect.field];
+        const naiyo = feature["attributes"]["内容"];
+        for (const hitData of disconnect.hitDatas) {
+          if (kubun == hitData.kubun && data == hitData.data) {
+            console.log("気象官署切断", year, month, kubun, data, naiyo);
+            cuttings.push({
+              year: year,
+              month: month,
+              evaluable: hitData.evaluable
+            });
+          }
+        }
+      }
+
+      //アメダスの場合の切断情報の取得
+    } else if (kansho == "アメダス") {
+      const disconnect = config.shihyo.find(n => n.title == shihyo).disconnect.amedas;
+
+      const query = amedasDisconnectTable.createQuery();
+      query.where = `観測所番号 = ${chitenId}`;
+      query.outFields = ["年", "月", disconnect.field]
+      query.orderByFields = ["年", "月"];
+
+      const result = await amedasDisconnectTable.queryFeatures(query);
+      for (const feature of result.features) {
+        const year = feature["attributes"]["年"];
+        const month = feature["attributes"]["月"];
+        const data = feature["attributes"][disconnect.field];
+        for (const hitData of disconnect.hitDatas) {
+          if (data == hitData.data) {
+            console.log("アメダス切断", year, month, data);
+            cuttings.push({
+              year: year,
+              month: month,
+              evaluable: hitData.evaluable
+            });
+          }
+        }
+      }
+    }
+
+    var disconnectValues = [];
+    const len = datasets.length;
+    for (let i = 0; i < len; i++) {
+      const currentYear = datasets[i].year;
+
+      const hitDatas = cuttings.filter(n => n.year == currentYear);
+      if (hitDatas.length > 0) {
+        disconnectValues.push(1);
+      } else {
+        disconnectValues.push(null);
+      }
+    }
+    // console.log(cuttings, disconnectValues);
+    return disconnectValues;
   }
 
   //トレンドを求める
@@ -1013,7 +1167,10 @@ require([
         let total = 0;
         for (let j = startYear; j <= endYear; j++) {
           const currentValue = datasets.find(n => n.year === j).value;
-          if (currentValue === null) continue;
+          if (currentValue === null) {
+            count = 0;
+            break;
+          };
           count += 1;
           total += currentValue;
         }
@@ -1046,6 +1203,7 @@ require([
     let movingAverages = chartData.movingAverages.map(n => n.value);
     let trendValues = chartData.trendValiable.values.map(n => n.value);
     const rTrend = chartData.trendValiable.r;
+    var disconnectValues = chartData.disconnectValues;
 
     var ctx = document.getElementById(element).getContext('2d');
 
@@ -1061,12 +1219,16 @@ require([
     var backgroundColor = config["shihyo"].find(value => value.title == shihyo).backgroundColor;
     var yAxesStep = config["shihyo"].find(value => value.title == shihyo).yAxesStep;
 
-    var title_fontSize = 24;
-    var scales_fontSize = 16;
+    var titleSize = config.chart_setting.layout.desktop.titleSize;
+    var subtitleSize = config.chart_setting.layout.desktop.subtitleSize;
+    var scalesSize = config.chart_setting.layout.desktop.scalesSize;
+    var legendPosition = config.chart_setting.layout.desktop.legendPosition;
 
-    if (window.innerWidth < breakpoint_width) {
-      title_fontSize = 12;
-      scales_fontSize = 9;
+    if (element != "chartDialogCanvas" && window.innerWidth < breakpoint_width) {
+      titleSize = config.chart_setting.layout.mobile.titleSize;
+      subtitleSize = config.chart_setting.layout.mobile.subtitleSize;
+      scalesSize = config.chart_setting.layout.mobile.scalesSize;
+      legendPosition = config.chart_setting.layout.mobile.legendPosition;
     }
 
     var yLabel = shihyotxt;
@@ -1089,8 +1251,51 @@ require([
         return yAxesMin;
       }
     });
+    //切断情報のY軸表示高さ
+    disconnectValues = disconnectValues.map(value => {
+      if (value == null) {
+        return null;
+      } else {
+        return yAxesMin;
+      }
+    });
 
     var datasets = [];
+
+    //統計切断のグラフ
+    if (disconnectValues.filter(n => n != null).length > 0) {
+      datasets.push({
+        label: config.chart_setting.disconnect.label,
+        type: "line",
+        data: disconnectValues,
+        pointBorderColor: config.chart_setting.disconnect.pointBorderColor,
+        pointBackgroundColor: config.chart_setting.disconnect.pointBorderColor,
+        borderColor: config.chart_setting.disconnect.pointBorderColor,
+        pointStyle: 'triangle',
+        showLine: false,
+        spanGaps: true,
+        pointRadius: 10,
+        pointHoverRadius: 15
+      });
+    }
+
+
+    //欠測値のグラフ
+    if (nulls.filter(n => n != null).length > 0) {
+      datasets.push({
+        label: config.chart_setting.nodata.label,
+        type: "line",
+        data: nulls,
+        pointBorderColor: config.chart_setting.nodata.pointBorderColor,
+        pointBackgroundColor: config.chart_setting.nodata.pointBorderColor,
+        borderColor: config.chart_setting.nodata.pointBorderColor,
+        pointStyle: 'crossRot',
+        showLine: false,
+        spanGaps: true,
+        pointRadius: 10,
+        pointHoverRadius: 15
+      });
+    }
 
     //トレンドデータのグラフ
     datasets.push({
@@ -1117,8 +1322,8 @@ require([
       lineTension: 0.4,
       borderWidth: 2,
       pointStyle: 'rect',
+      spanGaps: false,
       pointRadius: 0,
-      spanGaps: true,
       fill: false
     });
 
@@ -1137,24 +1342,12 @@ require([
       fill: false
     });
 
-    //欠測値のグラフ
-    if (nulls.filter(n => n != null).length > 0) {
-      datasets.push({
-        label: config.chart_setting.nodata.label,
-        type: "line",
-        data: nulls,
-        pointBorderColor: config.chart_setting.nodata.pointBorderColor,
-        pointBackgroundColor: config.chart_setting.nodata.pointBorderColor,
-        borderColor: config.chart_setting.nodata.pointBorderColor,
-        pointStyle: 'crossRot',
-        showLine: false,
-        spanGaps: true,
-        pointRadius: 10,
-        pointHoverRadius: 15
-      });
-    }
-
     drawnCharts.chartDatas[element] = chartData;
+
+    //チャートエレメントのクリア
+    if (drawnCharts.chartElements[element] != null) {
+      drawnCharts.chartElements[element].destroy();
+    }
 
     drawnCharts.chartElements[element] = new Chart(ctx, {
       type: chart_type,
@@ -1165,9 +1358,18 @@ require([
       options: {
         title: {
           display: true,
-          fontSize: title_fontSize,
+          fontSize: titleSize,
           fontColor: '#000000',
+          padding: 20,
           text: chart_title
+        },
+        plugins: {
+          chartJsPluginSubtitle: {
+            display: true,
+            fontSize: subtitleSize,
+            fontColor: '#000000',
+            text: "データは気象庁提供、国立環境研究所が解析したデータを基に作成"
+          }
         },
         layout: {
           padding: {
@@ -1178,7 +1380,8 @@ require([
         },
         legend: {
           display: true,
-          position: 'right',
+          position: legendPosition,
+          fontSize: 12,
           labels: {
             fontColor: '#000000',
             boxWidth: 20,
@@ -1192,11 +1395,13 @@ require([
           bodyFontSize: 14,
           callbacks: {
             title: function (tooltipItem, data) {
-              return shihyotxt;
+              return "";
             },
             label: function (tooltipItem, data) {
-              if (data.datasets[tooltipItem.datasetIndex].label === "欠測値") {
-                return data.labels[tooltipItem.index] + "年：欠測値";
+              if (data.datasets[tooltipItem.datasetIndex].label === config.chart_setting.disconnect.label) {
+                return data.labels[tooltipItem.index] + "年：" + config.chart_setting.disconnect.label;
+              } else if (data.datasets[tooltipItem.datasetIndex].label === config.chart_setting.nodata.label) {
+                return data.labels[tooltipItem.index] + "年：" + config.chart_setting.nodata.label;
               } else {
                 return data.labels[tooltipItem.index] + "年" + "：" + tooltipItem.yLabel;
               }
@@ -1208,7 +1413,7 @@ require([
             scaleLabel: {
               display: true,
               labelString: '観測年',
-              fontSize: scales_fontSize,
+              fontSize: scalesSize,
               fontColor: '#000000'
             },
             gridLines: {
@@ -1232,7 +1437,7 @@ require([
             scaleLabel: {
               display: true,
               labelString: yLabel,
-              fontSize: scales_fontSize,
+              fontSize: scalesSize,
               fontColor: '#000000',
               stepSize: yAxesStep,
             },
@@ -1255,18 +1460,18 @@ require([
     });
   }
 
-  //選択された観測所でグラフを描画できるかチェック
-  async function check_graph_render(graphElement) {
+  //選択された観測所が単一であれば地点番号を取得
+  async function getChitenId(graphElement) {
     var prefecture = $(`#${graphElement.prefectureSecector}`).val();
     var observatory = $(`#${graphElement.observatorySecector}`).val();
     var kansho = $('#kanshoselector').val();
 
-    var result = false;
+    var chitenId = null;
     if (shihyoLayer == null) {
-      return result;
+      return chitenId;
     }
-    if (observatory == "全て") {
-      return result;
+    if (observatory == "") {
+      return chitenId;
     }
 
     var query = shihyoLayer.createQuery();
@@ -1288,19 +1493,22 @@ require([
     var response = await shihyoLayer.queryFeatures(query);
     var features = response.features;
     if (features.length == 1) {
-      result = true;
+      chitenId = features[0].attributes["地点番号"];
     }
 
-    return result;
+    return chitenId;
   }
 
-  function download_csv(flg) {
-    //修正
+  async function download_csv(flg) {
+    const loadingScrim = document.getElementById("loadingScrim");
+    loadingScrim.classList.remove("hidden");
+
+    var display = $('#displayselector').val();
     var shihyo = $('#shihyoselector').val();
     var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
     var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-    var prefecture = $('#prefectureselector1').val();
-    var observatory = $('#observatoryselector1').val();
+    var prefecture1 = $('#prefectureselector1').val();
+    var observatory1 = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
     var month = $('#monthselector').val();
     var kansho = $('#kanshoselector').val();
@@ -1312,34 +1520,47 @@ require([
     }
 
     var query = shihyoLayer.createQuery();
+    query.where = "1=1"; //条件リセット
 
     if (flg == 0) {
-      if (prefecture != "全国" && observatory != "全て") {
-        if (kansho != "すべて") {
-          query.where = "官署 = '" + kansho + "' AND 都道府県 = '" + prefecture + "' AND 観測地点名 = '" + observatory + "'";
+      if (display == "mapview") {
+        if (prefecture1 != "全国" && observatory1 != "") {
+          if (kansho != "すべて") {
+            query.where = "官署 = '" + kansho + "' AND 都道府県 = '" + prefecture1 + "' AND 観測地点名 = '" + observatory1 + "'";
+          } else {
+            query.where = "都道府県 = '" + prefecture1 + "' AND 観測地点名 = '" + observatory1 + "'";
+          }
+          shihyotxt = shihyotxt + "_" + observatory1;
+        } else if (observatory1 != "") {
+          if (kansho != "すべて") {
+            query.where = "官署 = '" + kansho + "' AND 観測地点名 = '" + observatory1 + "'";
+          } else {
+            query.where = "観測地点名 = '" + observatory1 + "'";
+          }
+          shihyotxt = shihyotxt + "_" + observatory1;
+        } else if (prefecture1 != "全国") {
+          if (kansho != "すべて") {
+            query.where = "官署 = '" + kansho + "' AND 都道府県 = '" + prefecture1 + "'";
+          } else {
+            query.where = "都道府県 = '" + prefecture1 + "'";
+          }
+          shihyotxt = shihyotxt + "_" + prefecture1;
         } else {
-          query.where = "都道府県 = '" + prefecture + "' AND 観測地点名 = '" + observatory + "'";
+          if (kansho != "すべて") {
+            query.where = "官署 = '" + kansho + "'";
+          }
+          shihyotxt = shihyotxt + "_全国";
         }
-        shihyotxt = shihyotxt + "_" + observatory;
-      } else if (observatory != "全て") {
-        if (kansho != "すべて") {
-          query.where = "官署 = '" + kansho + "' AND 観測地点名 = '" + observatory + "'";
-        } else {
-          query.where = "観測地点名 = '" + observatory + "'";
-        }
-        shihyotxt = shihyotxt + "_" + observatory;
-      } else if (prefecture != "全国") {
-        if (kansho != "すべて") {
-          query.where = "官署 = '" + kansho + "' AND 都道府県 = '" + prefecture + "'";
-        } else {
-          query.where = "都道府県 = '" + prefecture + "'";
-        }
-        shihyotxt = shihyotxt + "_" + prefecture;
       } else {
-        if (kansho != "すべて") {
-          query.where = "官署 = '" + kansho + "'";
-        }
-        shihyotxt = shihyotxt + "_全国";
+        //グラフで表示されている地点のデータを出力
+        var chitenIds = [];
+        Object.keys(drawnCharts.chartDatas).forEach(function (key) {
+          chitenIds.push(drawnCharts.chartDatas[key].chitenId);
+        });
+
+        if (chitenIds.length == 0) return;
+
+        query.where = "地点番号 in (" + chitenIds.join(',') + ")";
       }
     } else {
       query.geometry = view.extent;
@@ -1354,26 +1575,38 @@ require([
     }
 
     query.returnGeometry = false;
-    query.maxRecordCountFactor = 10;
 
     var records = [];
 
-    shihyoLayer.queryFeatures(query)
-      .then(function (response) {
-        var features = response.features;
+    const perRecord = 2000;
+    var startRecord = 0;
+    var endRecord = startRecord + perRecord;
 
-        for (let i = 0; i < features.length; ++i) {
-          var att = features[i].attributes;
+    while (true) {
+      query.num = perRecord;
+      query.start = startRecord;
+      query.end = endRecord;
+      var response = await shihyoLayer.queryFeatures(query);
 
-          var record = [];
-          for (let j = 0; j < fields.length; ++j) {
-            record.push(att[fields[j]]);
-          }
-          records.push(record);
+      var features = response.features;
+
+      if (features.length == 0) break;
+
+      for (let i = 0; i < features.length; ++i) {
+        var att = features[i].attributes;
+
+        var record = [];
+        for (let j = 0; j < fields.length; ++j) {
+          record.push(att[fields[j]]);
         }
+        records.push(record);
+      }
 
-        startCsvDownload(shihyotxt, fields, records);
-      });
+      startRecord = endRecord;
+      endRecord = startRecord + perRecord;
+    }
+    startCsvDownload(shihyotxt, fields, records);
+    loadingScrim.classList.add("hidden");
 
 
     //CSVデータの保存
@@ -1444,7 +1677,16 @@ require([
     ctx.drawImage(mapImg, 0, 0, mapImg.width, mapImg.height, 0, titleHeight, mapImg.width, mapImg.height);
     ctx.drawImage(legendImg, 0, 0, legendImg.width, legendImg.height, legendDx, legendDy, legendDw, legendDh);
 
-    var export_text = shihyotxt + "_";
+    var export_text = "";
+
+    if (observatory != "") {
+      export_text = observatory + "_";
+    } else if (prefecture != "全国") {
+      export_text = prefecture + "_";
+    }
+
+    export_text = export_text + shihyotxt + "_";
+
     if (bunrui == "年間値") {
       export_text += year + "年";
     } else {
@@ -1468,27 +1710,6 @@ require([
     a.download = export_text + '.png';
     a.click();
   }
-
-  //グラフ画像の保存
-  // function startGraphDownload(title, canvasElement) {
-  //   var shihyotxt = $('#shihyoselector calcite-option:selected').text();
-  //   var observatory = $('#observatoryselector1').val();
-
-  //   if (observatory == "全て") {
-  //     alert("観測所が選択されていません");
-  //     return;
-  //   }
-
-  //   var export_text = observatory + "観測所_";
-  //   export_text += shihyotxt;
-  //   export_text += "_グラフ";
-
-  //   var ctx = document.getElementById(canvasElement);
-  //   var a = document.createElement('a');
-  //   a.href = ctx.toDataURL();
-  //   a.download = export_text + '.png';
-  //   a.click();
-  // }
 });
 
 //URLパラメータの取得
