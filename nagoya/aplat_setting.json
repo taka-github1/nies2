@@ -63,6 +63,36 @@
     "kansho_table": "kansho_disconnect",
     "amedas_table": "amedas_disconnect"
   },
+  "evaluation": {
+    "year_table": "year_evaluation",
+    "month_table": "month_evaluation",
+    "evaluable_p_min": 0,
+    "evaluable_p_max": 0.05,
+    "exclusion_list": [
+      {
+        "chiten": 47780,
+        "shihyo": [
+          "年平均気温",
+          "日最高気温の年平均",
+          "日最低気温の年平均",
+          "月平均気温",
+          "日最高気温の月平均",
+          "日最低気温の月平均"
+        ]
+      },
+      {
+        "chiten": 47776,
+        "shihyo": [
+          "年平均気温",
+          "日最高気温の年平均",
+          "日最低気温の年平均",
+          "月平均気温",
+          "日最高気温の月平均",
+          "日最低気温の月平均"
+        ]
+      }
+    ]
+  },
   "shihyo": [
     {
       "index": 0,

@@ -97,6 +97,8 @@ require([
   var shihyoLayer = null;
   var kanshoDisconnectTable = null;
   var amedasDisconnectTable = null;
+  var yearEvaluationTable = null;
+  var monthEvaluationTable = null;
 
   var homeBtn = new Home({
     view: view
@@ -519,6 +521,12 @@ require([
       if (tables[i].title == config.disconnect.amedas_table) {
         amedasDisconnectTable = tables[i];
       }
+      if (tables[i].title == config.evaluation.year_table) {
+        yearEvaluationTable = tables[i];
+      }
+      if (tables[i].title == config.evaluation.month_table) {
+        monthEvaluationTable = tables[i];
+      }
     }
 
     let query = shihyoLayer.createQuery();
@@ -827,7 +835,7 @@ require([
           data.labels.unshift(fill_year);
           data.datas.unshift(null);
           data.nulls.unshift(null);
-          data.trendValiable.values.unshift({
+          data.evaluationValues.values.unshift({
             year: fill_year,
             value: null
           });
@@ -846,7 +854,7 @@ require([
           data.labels.push(fill_year);
           data.datas.push(null);
           data.nulls.push(null);
-          data.trendValiable.values.push({
+          data.evaluationValues.values.push({
             year: fill_year,
             value: null
           });
@@ -982,8 +990,11 @@ require([
     var chart_title = observatory + "観測所";
     chart_title = `${observatory}観測所　${startYear}年～${endYear}年`;
 
-    //統計トレンド曲線
-    const trendValiable = getTrendVariable(datasets);
+    //統計評価
+    var evaluationValues = await getEvaluationValues(graphElement, chitenId);
+    if (evaluationValues["evaluable"] == true) {
+      evaluationValues = getEvaluationLine(evaluationValues, datasets);
+    }
 
     //中央移動平均
     const movingAverages = getMovingAverage(datasets);
@@ -999,7 +1010,7 @@ require([
       datas: datas,
       nulls: nulls,
       datasets: datasets,
-      trendValiable: trendValiable,
+      evaluationValues: evaluationValues,
       movingAverages: movingAverages,
       disconnectValues: disconnectValues
     }
@@ -1030,7 +1041,7 @@ require([
         const naiyo = feature["attributes"]["内容"];
         for (const hitData of disconnect.hitDatas) {
           if (kubun == hitData.kubun && data == hitData.data) {
-            console.log("気象官署切断", year, month, kubun, data, naiyo);
+            // console.log("気象官署切断", year, month, kubun, data, naiyo);
             cuttings.push({
               year: year,
               month: month,
@@ -1056,7 +1067,7 @@ require([
         const data = feature["attributes"][disconnect.field];
         for (const hitData of disconnect.hitDatas) {
           if (data == hitData.data) {
-            console.log("アメダス切断", year, month, data);
+            // console.log("アメダス切断", year, month, data);
             cuttings.push({
               year: year,
               month: month,
@@ -1079,36 +1090,91 @@ require([
         disconnectValues.push(null);
       }
     }
-    // console.log(cuttings, disconnectValues);
     return disconnectValues;
   }
 
-  //トレンドを求める
-  function getTrendVariable(datasets) {
+  //統計評価テーブルの取得
+  async function getEvaluationValues(graphElement, chitenId) {
+    var shihyo = $('#shihyoselector').val();
+    var bunrui = config.shihyo.find(v => v.title === shihyo).bunrui;
+    var month = $('#monthselector').val();
+    var kansho = $(`#${graphElement.observatorySecector} calcite-option:selected`).parent().text();
+
+    var returnValues = {
+      "evaluable": false,
+      "p": null,
+      "slope": null,
+      "intercept": null
+    };
+
+    //指標として統計評価をしない場合
+    const configShihyo = config.shihyo.find(v => v.title === shihyo);
+    var evaluable = true;
+    if (kansho == "気象官署") {
+      evaluable = configShihyo.disconnect.kansho.evaluable;
+    } else {
+      evaluable = configShihyo.disconnect.amedas.evaluable;
+    }
+    if (evaluable == false) {
+      return returnValues;
+    }
+
+    //地点として統計評価をしない場合
+    const configExclusion_list = config.evaluation.exclusion_list.find(v => v.chiten === chitenId);
+    if (configExclusion_list) {
+      if (configExclusion_list.shihyo.find(n => n == shihyo)) {
+        return returnValues;
+      }
+    }
+
+    var evaluationTable = null;
+    var where = null;
+    if (bunrui == "年間値") {
+      evaluationTable = yearEvaluationTable;
+      where = `地点番号 = ${chitenId} And 指標 = '${shihyo}'`;
+    } else {
+      evaluationTable = monthEvaluationTable;
+      where = `地点番号 = ${chitenId} And 指標 = '${shihyo}' And 月 = '${month}'`;
+    }
+    const query = evaluationTable.createQuery();
+    query.where = where;
+    query.outFields = ["p", "slope", "intercept"];
+    const result = await evaluationTable.queryFeatures(query);
+
+    if (result.features.length > 0) {
+      const attributes = result.features[0].attributes;
+      if (attributes["p"] >= config.evaluation.evaluable_p_min && attributes["p"] <= config.evaluation.evaluable_p_max) {
+        returnValues = {
+          "evaluable": true,
+          "p": attributes["p"],
+          "slope": attributes["slope"],
+          "intercept": attributes["intercept"]
+        };
+      }
+    }
+    return returnValues;
+  }
+
+  //トレンドの直線データを取得
+  function getEvaluationLine(evaluationValues, datasets) {
 
     let valuebles = datasets.filter((n) => n.type === "normal");
-
     const len = valuebles.length;
-    const sigX = valuebles.reduce((acc, c) => acc + c.year, 0);
-    const sigY = valuebles.reduce((acc, c) => acc + c.value, 0);
-    const sigXX = valuebles.reduce((acc, c) => acc + c.year * c.year, 0);
-    const sigXY = valuebles.reduce((acc, c) => acc + c.year * c.value, 0);
-    // a(傾き)を求める
-    const a = (len * sigXY - sigX * sigY) / (len * sigXX - Math.pow(sigX, 2));
-    // b(切片)を求める
-    const b = (sigXX * sigY - sigXY * sigX) / (len * sigXX - Math.pow(sigX, 2));
-
+    const a = evaluationValues["slope"];
+    const b = evaluationValues["intercept"];
     let values = [];
+    const firstYear = valuebles[0].year;
     for (const dataset of datasets) {
+
       if (dataset.year == valuebles[0].year) {
         values.push({
           year: dataset.year,
-          value: valuebles[0].year * a + b
+          value: b
         });
       } else if (dataset.year == valuebles[len - 1].year) {
         values.push({
           year: dataset.year,
-          value: valuebles[len - 1].year * a + b
+          value: (valuebles[len - 1].year - valuebles[0].year) * a + b
         });
       } else {
         values.push({
@@ -1118,14 +1184,10 @@ require([
       }
     }
 
-    const trendValiable = {
-      a: Math.floor(a * 1000) / 1000,
-      b: Math.floor(b * 1000) / 1000,
-      r: Math.floor(a * 100 * 100) / 100,
-      values: values
-    }
-    return trendValiable;
+    evaluationValues["values"] = values;
+    return evaluationValues;
   }
+
 
   //移動平均を求める
   function getMovingAverage(datasets) {
@@ -1201,8 +1263,6 @@ require([
     const datas = chartData.datas;
     var nulls = chartData.nulls;
     let movingAverages = chartData.movingAverages.map(n => n.value);
-    let trendValues = chartData.trendValiable.values.map(n => n.value);
-    const rTrend = chartData.trendValiable.r;
     var disconnectValues = chartData.disconnectValues;
 
     var ctx = document.getElementById(element).getContext('2d');
@@ -1298,19 +1358,25 @@ require([
     }
 
     //トレンドデータのグラフ
-    datasets.push({
-      label: config.chart_setting.trend.label + "(R=" + rTrend + ")",
-      type: "line",
-      data: trendValues,
-      borderColor: config.chart_setting.trend.borderColor,
-      backgroundColor: config.chart_setting.trend.borderColor,
-      lineTension: 0,
-      borderWidth: 2,
-      pointStyle: 'rect',
-      pointRadius: 0,
-      spanGaps: true,
-      fill: false
-    });
+    if (chartData.evaluationValues.evaluable == true) {
+      const rTrend = chartData.evaluationValues.slope;
+      const trendValues = chartData.evaluationValues.values.map(n => n.value);
+      console.log(chartData.evaluationValues);
+      datasets.push({
+        // label: config.chart_setting.trend.label + "(slope=intercept=" + rTrend + ")",
+        label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
+        type: "line",
+        data: trendValues,
+        borderColor: config.chart_setting.trend.borderColor,
+        backgroundColor: config.chart_setting.trend.borderColor,
+        lineTension: 0,
+        borderWidth: 2,
+        pointStyle: 'rect',
+        pointRadius: 0,
+        spanGaps: true,
+        fill: false
+      });
+    }
 
     //移動平均のグラフ
     datasets.push({
