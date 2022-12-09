@@ -835,10 +835,12 @@ require([
           data.labels.unshift(fill_year);
           data.datas.unshift(null);
           data.nulls.unshift(null);
-          data.evaluationValues.values.unshift({
-            year: fill_year,
-            value: null
-          });
+          if (data.evaluationValues.evaluable == true) {
+            data.evaluationValues.values.unshift({
+              year: fill_year,
+              value: null
+            });
+          }
           data.movingAverages.unshift({
             year: fill_year,
             value: null
@@ -854,10 +856,12 @@ require([
           data.labels.push(fill_year);
           data.datas.push(null);
           data.nulls.push(null);
-          data.evaluationValues.values.push({
-            year: fill_year,
-            value: null
-          });
+          if (data.evaluationValues.evaluable == true) {
+            data.evaluationValues.values.push({
+              year: fill_year,
+              value: null
+            });
+          }
           data.movingAverages.push({
             year: fill_year,
             value: null
