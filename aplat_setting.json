@@ -1,6 +1,6 @@
 {
-  "appId": "QUUUOLXshMCe9OSp",
-  "base_webmap_id": "ce2dd3b7d9064d3f81eaa38621fe8e9d",
+  "appId": "syG2ixdqi9liCxZF",
+  "base_webmap_id": "dd053721915a486697174f945b6b8433",
   "basemap_group_id": "0a489e5adeab43e1be2d570ea3149af3",
   "default_extend": {
     "xmin": 126.2331,
@@ -59,6 +59,40 @@
     "沖縄",
     "南極"
   ],
+  "disconnect": {
+    "kansho_table": "kansho_disconnect",
+    "amedas_table": "amedas_disconnect"
+  },
+  "evaluation": {
+    "year_table": "year_evaluation",
+    "month_table": "month_evaluation",
+    "evaluable_p_min": 0,
+    "evaluable_p_max": 0.05,
+    "exclusion_list": [
+      {
+        "chiten": 47780,
+        "shihyo": [
+          "年平均気温",
+          "日最高気温の年平均",
+          "日最低気温の年平均",
+          "月平均気温",
+          "日最高気温の月平均",
+          "日最低気温の月平均"
+        ]
+      },
+      {
+        "chiten": 47776,
+        "shihyo": [
+          "年平均気温",
+          "日最高気温の年平均",
+          "日最低気温の年平均",
+          "月平均気温",
+          "日最高気温の月平均",
+          "日最低気温の月平均"
+        ]
+      }
+    ]
+  },
   "shihyo": [
     {
       "index": 0,
@@ -69,7 +103,44 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "平均気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 1,
@@ -80,7 +151,49 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 2,
@@ -91,7 +204,49 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "日最低気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 3,
@@ -102,7 +257,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温35_0度以上の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 4,
@@ -113,7 +310,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温30_0度以上の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 5,
@@ -124,7 +363,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温25_0度以上の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 6,
@@ -135,7 +416,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最低気温25_0度以上の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 7,
@@ -146,7 +469,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最低気温0_0度未満の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 8,
@@ -157,7 +522,49 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温0_0度未満の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "data": 5,
+              "naiyo": "サンプリング間隔変更＋観測所移転で切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 9,
@@ -168,7 +575,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 200
+      "yAxesStep": 200,
+      "disconnect": {
+        "kansho": {
+          "field": "降水量",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": true
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 10,
@@ -179,7 +611,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "降水量",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 11,
@@ -190,7 +647,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "日降水量100_0mm以上の日数",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 12,
@@ -201,7 +683,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "降水量",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 13,
@@ -212,7 +719,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "降水量",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 14,
@@ -223,7 +755,38 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 50
+      "yAxesStep": 50,
+      "disconnect": {
+        "kansho": {
+          "field": "降雪の深さ",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 15,
@@ -234,7 +797,92 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 10
+      "yAxesStep": 10,
+      "disconnect": {
+        "kansho": {
+          "field": "降雪の深さ日合計の最大",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "測器補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 16,
+      "bunrui": "年間値",
+      "title": "年降雪量",
+      "label": "年降雪量(cm)",
+      "field": "年降雪量",
+      "chart": "bar",
+      "borderColor": "rgba(0,0,0,1)",
+      "backgroundColor": "rgba(84,130,53,1)",
+      "yAxesStep": 10,
+      "disconnect": {
+        "kansho": {
+          "field": "最深積雪",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "測器補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 101,
@@ -245,7 +893,44 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "平均気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 102,
@@ -256,7 +941,44 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "日最高気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 103,
@@ -267,7 +989,44 @@
       "chart": "line",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(255,255,255,1)",
-      "yAxesStep": 1
+      "yAxesStep": 1,
+      "disconnect": {
+        "kansho": {
+          "field": "日最低気温",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 10,
+              "data": 3,
+              "naiyo": "移転補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 10,
+              "data": 5,
+              "naiyo": "接続するがデータ蓄積中",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "気温の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 104,
@@ -278,7 +1037,32 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "降水量",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "降水量の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     },
     {
       "index": 105,
@@ -289,10 +1073,101 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 20
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "最深積雪",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 106,
+      "bunrui": "月別値",
+      "title": "月降雪量",
+      "label": "月降雪量(cm)",
+      "field": "月降雪量",
+      "chart": "bar",
+      "borderColor": "rgba(0,0,0,1)",
+      "backgroundColor": "rgba(84,130,53,1)",
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "最深積雪",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 10,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     }
   ],
   "chart_setting": {
+    "layout": {
+      "desktop": {
+        "titleSize": 24,
+        "subtitleSize": 12,
+        "scalesSize": 16,
+        "legendPosition": "right"
+      },
+      "mobile": {
+        "titleSize": 12,
+        "subtitleSize": 9,
+        "scalesSize": 9,
+        "legendPosition": "bottom"
+      }
+    },
+    "disconnect": {
+      "label": "統計切断",
+      "pointBorderColor": "rgba(255,0,0,1)"
+    },
     "nodata": {
       "label": "欠測値",
       "pointBorderColor": "rgba(255,0,0,1)"
