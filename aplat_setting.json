@@ -811,7 +811,7 @@
             },
             {
               "kubun": 32,
-              "data": 1,
+              "data": 4,
               "naiyo": "測器補正",
               "evaluable": true
             },
@@ -848,7 +848,7 @@
       "yAxesStep": 100,
       "disconnect": {
         "kansho": {
-          "field": "最深積雪",
+          "field": "降雪の深さ",
           "evaluable": true,
           "hitDatas": [
             {
@@ -859,7 +859,7 @@
             },
             {
               "kubun": 32,
-              "data": 1,
+              "data": 4,
               "naiyo": "測器補正",
               "evaluable": true
             },
@@ -1122,9 +1122,15 @@
           "evaluable": true,
           "hitDatas": [
             {
-              "kubun": 10,
+              "kubun": 32,
               "data": 1,
               "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 32,
+              "data": 4,
+              "naiyo": "測器補正",
               "evaluable": false
             },
             {
