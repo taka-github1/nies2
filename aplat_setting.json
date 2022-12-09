@@ -845,7 +845,7 @@
       "chart": "bar",
       "borderColor": "rgba(0,0,0,1)",
       "backgroundColor": "rgba(84,130,53,1)",
-      "yAxesStep": 10,
+      "yAxesStep": 100,
       "disconnect": {
         "kansho": {
           "field": "最深積雪",
