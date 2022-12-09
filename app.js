@@ -1368,7 +1368,7 @@ require([
       const trendValues = chartData.evaluationValues.values.map(n => n.value);
       console.log(chartData.evaluationValues);
       datasets.push({
-        label: config.chart_setting.trend.label + "トレンド (R=" + rTrend + ")",
+        label: config.chart_setting.trend.label + " (R=" + rTrend + ")",
         // label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
         type: "line",
         data: trendValues,
