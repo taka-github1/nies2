@@ -1335,6 +1335,7 @@ require([
         pointBorderColor: config.chart_setting.disconnect.pointBorderColor,
         pointBackgroundColor: config.chart_setting.disconnect.pointBorderColor,
         borderColor: config.chart_setting.disconnect.pointBorderColor,
+        backgroundColor: config.chart_setting.disconnect.pointBorderColor,
         pointStyle: 'triangle',
         showLine: false,
         spanGaps: true,
@@ -1361,14 +1362,14 @@ require([
       });
     }
 
-    //トレンドデータのグラフ
-    if (chartData.evaluationValues.evaluable == true) {
-      const rTrend = chartData.evaluationValues.slope;
+    //トレンドデータのグラフ(統計切断がない場合のみ表示)
+    if (chartData.evaluationValues.evaluable == true && disconnectValues.filter(n => n != null).length == 0) {
+      const rTrend = Math.floor(chartData.evaluationValues.slope * 1000) / 1000;
       const trendValues = chartData.evaluationValues.values.map(n => n.value);
       console.log(chartData.evaluationValues);
       datasets.push({
-        // label: config.chart_setting.trend.label + "(slope=intercept=" + rTrend + ")",
-        label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
+        label: config.chart_setting.trend.label + "トレンド (R=" + rTrend + ")",
+        // label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
         type: "line",
         data: trendValues,
         borderColor: config.chart_setting.trend.borderColor,
