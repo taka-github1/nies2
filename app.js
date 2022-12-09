@@ -1390,7 +1390,7 @@ require([
       data: movingAverages,
       borderColor: config.chart_setting.average.borderColor,
       backgroundColor: config.chart_setting.average.borderColor,
-      lineTension: 0.4,
+      lineTension: 0,
       borderWidth: 2,
       pointStyle: 'rect',
       spanGaps: false,
