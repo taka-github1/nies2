@@ -187,8 +187,6 @@ require([
   map.when(function () {
     setForm(true);
 
-
-    //修正
     if (urlParameters.prefecture1 || urlParameters.observatory1) {
       setMapLayerFilter(true);
     } else {
@@ -267,7 +265,6 @@ require([
 
     //グラフ拡大ボタンのクリック
     $(`#${graphElement.expand}`).on("click", function (event) {
-      //修正
       $('#chartDialog').fadeIn();
 
       //グラフの表示
@@ -578,7 +575,6 @@ require([
       urlParameters.year = null;
     }
 
-    //修正
     if (!init_flg) {
       return;
     }
@@ -708,7 +704,6 @@ require([
   }
 
   function setMapLayerFilter(zoom_flg) {
-    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
@@ -1287,6 +1282,7 @@ require([
     var subtitleSize = config.chart_setting.layout.desktop.subtitleSize;
     var scalesSize = config.chart_setting.layout.desktop.scalesSize;
     var legendPosition = config.chart_setting.layout.desktop.legendPosition;
+    var subtitleText = config.chart_setting.subtitleText;
 
     if (element != "chartDialogCanvas" && window.innerWidth < breakpoint_width) {
       titleSize = config.chart_setting.layout.mobile.titleSize;
@@ -1369,7 +1365,6 @@ require([
       console.log(chartData.evaluationValues);
       datasets.push({
         label: config.chart_setting.trend.label + " (R=" + rTrend + ")",
-        // label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
         type: "line",
         data: trendValues,
         borderColor: config.chart_setting.trend.borderColor,
@@ -1381,6 +1376,11 @@ require([
         spanGaps: true,
         fill: false
       });
+      subtitleText = subtitleText + "　　" + "統計評価：有意性がある";
+    } else if (chartData.evaluationValues.evaluable == false) {
+      subtitleText = subtitleText + "　　" + "統計評価：有意性がない";
+    } else if (disconnectValues.filter(n => n != null).length > 0) {
+      subtitleText = subtitleText + "　　" + "統計評価：評価していない";
     }
 
     //移動平均のグラフ
@@ -1439,7 +1439,7 @@ require([
             display: true,
             fontSize: subtitleSize,
             fontColor: '#000000',
-            text: "データは気象庁提供、国立環境研究所が解析したデータを基に作成"
+            text: subtitleText
           }
         },
         layout: {
@@ -1711,7 +1711,6 @@ require([
 
   //マップ画像の保存
   async function startMapDownload() {
-    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];

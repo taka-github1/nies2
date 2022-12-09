@@ -1156,6 +1156,7 @@
     }
   ],
   "chart_setting": {
+    "subtitleText": "データは気象庁提供、国立環境研究所が解析したデータを基に作成",
     "layout": {
       "desktop": {
         "titleSize": 24,
