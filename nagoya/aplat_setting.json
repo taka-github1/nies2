@@ -59,6 +59,50 @@
     "沖縄",
     "南極"
   ],
+  "allowUrlParameter": {
+    "display": {
+      "type": "list",
+      "list": [
+        "mapview",
+        "graphview"
+      ]
+    },
+    "kansho": {
+      "type": "list",
+      "list": [
+        "すべて",
+        "気象官署",
+        "アメダス"
+      ]
+    },
+    "shihyo": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "month": {
+      "type": "number"
+    },
+    "prefecture1": {
+      "type": "string"
+    },
+    "observatory1": {
+      "type": "string"
+    },
+    "prefecture2": {
+      "type": "string"
+    },
+    "observatory2": {
+      "type": "string"
+    },
+    "prefecture3": {
+      "type": "string"
+    },
+    "observatory3": {
+      "type": "string"
+    }
+  },
   "disconnect": {
     "kansho_table": "kansho_disconnect",
     "amedas_table": "amedas_disconnect"
@@ -811,7 +855,55 @@
             },
             {
               "kubun": 32,
+              "data": 4,
+              "naiyo": "測器補正",
+              "evaluable": true
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": false,
+          "hitDatas": [
+            {
               "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "index": 16,
+      "bunrui": "年間値",
+      "title": "年降雪量",
+      "label": "年降雪量(cm)",
+      "field": "年降雪量",
+      "chart": "bar",
+      "borderColor": "rgba(0,0,0,1)",
+      "backgroundColor": "rgba(84,130,53,1)",
+      "yAxesStep": 100,
+      "disconnect": {
+        "kansho": {
+          "field": "降雪の深さ",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 32,
+              "data": 4,
               "naiyo": "測器補正",
               "evaluable": true
             },
@@ -1057,9 +1149,58 @@
           ]
         }
       }
+    },
+    {
+      "index": 106,
+      "bunrui": "月別値",
+      "title": "月降雪量",
+      "label": "月降雪量(cm)",
+      "field": "月降雪量",
+      "chart": "bar",
+      "borderColor": "rgba(0,0,0,1)",
+      "backgroundColor": "rgba(84,130,53,1)",
+      "yAxesStep": 20,
+      "disconnect": {
+        "kansho": {
+          "field": "最深積雪",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "kubun": 32,
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            },
+            {
+              "kubun": 32,
+              "data": 4,
+              "naiyo": "測器補正",
+              "evaluable": false
+            },
+            {
+              "kubun": 31,
+              "data": 8,
+              "naiyo": "目視観測の廃止",
+              "evaluable": false
+            }
+          ]
+        },
+        "amedas": {
+          "field": "積雪深の統計接続",
+          "evaluable": true,
+          "hitDatas": [
+            {
+              "data": 1,
+              "naiyo": "切断",
+              "evaluable": false
+            }
+          ]
+        }
+      }
     }
   ],
   "chart_setting": {
+    "subtitleText": "データは気象庁提供、国立環境研究所が解析したデータを基に作成",
     "layout": {
       "desktop": {
         "titleSize": 24,

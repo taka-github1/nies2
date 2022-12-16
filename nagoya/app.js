@@ -27,54 +27,20 @@ var default_extend = config.default_extend;
 var graphElements = config.chart_setting.elements;
 
 //URLパラメータの取得
-var urlParameters = {
-  "display": getParam("display"),
-  "kansho": getParam("kansho"),
-  "shihyo": getParam("shihyo"),
-  "year": getParam("year"),
-  "month": getParam("month"),
-  "prefecture1": getParam("prefecture1"),
-  "observatory1": getParam("observatory1"),
-  "prefecture2": getParam("prefecture2"),
-  "observatory2": getParam("observatory2"),
-  "prefecture3": getParam("prefecture3"),
-  "observatory3": getParam("observatory3"),
-  "expand": getParam("expand"),
-}
+var urlParameters = getUrlParameters();
 
 require([
-  "esri/portal/Portal",
-  "esri/identity/OAuthInfo",
-  "esri/identity/IdentityManager",
   "esri/core/reactiveUtils",
-  "esri/Map",
   "esri/WebMap",
-  "esri/Basemap",
   "esri/views/MapView",
-  "esri/layers/TileLayer",
-  "esri/layers/FeatureLayer",
   "esri/widgets/Home",
-  "esri/widgets/Swipe",
   "esri/widgets/Legend",
   "esri/widgets/Expand",
   "esri/widgets/BasemapGallery",
   "esri/widgets/Slider",
-  "esri/widgets/ScaleBar",
-  "esri/geometry/Extent",
-  "esri/renderers/Renderer",
-  "esri/widgets/BasemapGallery/support/LocalBasemapsSource"
-], function (Portal, OAuthInfo, identityManager, reactiveUtils, Map, WebMap, Basemap, MapView, TileLayer, FeatureLayer,
-  Home, Swipe, Legend, Expand, BasemapGallery, Slider, ScaleBar, Extent, Renderer, LocalBasemapsSource) {
-
-  // var portalUrl = "https://nies.maps.arcgis.com";
-
-  // var info = new OAuthInfo({
-  //   appId: config.appId,
-  //   popup: false
-  // });
-
-  // identityManager.registerOAuthInfos([info]);
-  // identityManager.getCredential(portalUrl);
+  "esri/widgets/ScaleBar"
+], function (reactiveUtils, WebMap, MapView,
+  Home, Legend, Expand, BasemapGallery, Slider, ScaleBar) {
 
   initForm();
 
@@ -186,15 +152,7 @@ require([
 
   map.when(function () {
     setForm(true);
-
-
-    //修正
-    if (urlParameters.prefecture1 || urlParameters.observatory1) {
-      setMapLayerFilter(true);
-    } else {
-      setMapLayerFilter(false);
-    }
-
+    setMapLayerFilter(true);
     draw_charts();
   });
 
@@ -267,7 +225,6 @@ require([
 
     //グラフ拡大ボタンのクリック
     $(`#${graphElement.expand}`).on("click", function (event) {
-      //修正
       $('#chartDialog').fadeIn();
 
       //グラフの表示
@@ -572,13 +529,14 @@ require([
 
     var year = yearSlider.values[0];
     if (urlParameters.year) {
-      yearSlider.values[0] = urlParameters.year;
-      setMapLayerFilter(false);
-      year = Number(urlParameters.year);
+      if (urlParameters.year >= yearSlider.min && urlParameters.year <= yearSlider.max) {
+        yearSlider.values[0] = urlParameters.year;
+        year = urlParameters.year;
+        setMapLayerFilter(false);
+      }
       urlParameters.year = null;
     }
 
-    //修正
     if (!init_flg) {
       return;
     }
@@ -606,9 +564,12 @@ require([
       $(`#${prefectureElement}`).append(item);
     }
 
-    if (urlParameters[prefectureElement]) {
-      $(`#${prefectureElement}`).val(urlParameters[prefectureElement]);
-      urlParameters[prefectureElement] = null;
+    if (urlParameters[graphElement.prefectureUrlParameter]) {
+      $(`#${prefectureElement}`).val(urlParameters[graphElement.prefectureUrlParameter]);
+      urlParameters[graphElement.prefectureUrlParameter] = null;
+      if (graphElement.prefectureUrlParameter == "prefecture1") {
+        setMapLayerFilter(true);
+      }
     }
 
     setObservatoryselector(graphElement, init_flg);
@@ -701,14 +662,17 @@ require([
       group.append(item);
     }
 
-    if (urlParameters[observatoryElement]) {
-      $(`#${observatoryElement}`).val(urlParameters[observatoryElement]);
-      urlParameters[observatoryElement] = null;
+    if (urlParameters[graphElement.observatoryUrlParameter]) {
+      $(`#${observatoryElement}`).val(urlParameters[graphElement.observatoryUrlParameter]);
+      urlParameters[graphElement.observatoryUrlParameter] = null;
+      if (graphElement.observatoryUrlParameter == "observatory1") {
+        setMapLayerFilter(true);
+      }
+      draw_charts();
     }
   }
 
   function setMapLayerFilter(zoom_flg) {
-    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
@@ -835,10 +799,12 @@ require([
           data.labels.unshift(fill_year);
           data.datas.unshift(null);
           data.nulls.unshift(null);
-          data.evaluationValues.values.unshift({
-            year: fill_year,
-            value: null
-          });
+          if (data.evaluationValues.evaluable == true) {
+            data.evaluationValues.values.unshift({
+              year: fill_year,
+              value: null
+            });
+          }
           data.movingAverages.unshift({
             year: fill_year,
             value: null
@@ -854,10 +820,12 @@ require([
           data.labels.push(fill_year);
           data.datas.push(null);
           data.nulls.push(null);
-          data.evaluationValues.values.push({
-            year: fill_year,
-            value: null
-          });
+          if (data.evaluationValues.evaluable == true) {
+            data.evaluationValues.values.push({
+              year: fill_year,
+              value: null
+            });
+          }
           data.movingAverages.push({
             year: fill_year,
             value: null
@@ -1283,6 +1251,7 @@ require([
     var subtitleSize = config.chart_setting.layout.desktop.subtitleSize;
     var scalesSize = config.chart_setting.layout.desktop.scalesSize;
     var legendPosition = config.chart_setting.layout.desktop.legendPosition;
+    var subtitleText = config.chart_setting.subtitleText;
 
     if (element != "chartDialogCanvas" && window.innerWidth < breakpoint_width) {
       titleSize = config.chart_setting.layout.mobile.titleSize;
@@ -1331,6 +1300,7 @@ require([
         pointBorderColor: config.chart_setting.disconnect.pointBorderColor,
         pointBackgroundColor: config.chart_setting.disconnect.pointBorderColor,
         borderColor: config.chart_setting.disconnect.pointBorderColor,
+        backgroundColor: config.chart_setting.disconnect.pointBorderColor,
         pointStyle: 'triangle',
         showLine: false,
         spanGaps: true,
@@ -1357,14 +1327,13 @@ require([
       });
     }
 
-    //トレンドデータのグラフ
-    if (chartData.evaluationValues.evaluable == true) {
-      const rTrend = chartData.evaluationValues.slope;
+    //トレンドデータのグラフ(統計切断がない場合のみ表示)
+    if (chartData.evaluationValues.evaluable == true && disconnectValues.filter(n => n != null).length == 0) {
+      const rTrend = Math.floor(chartData.evaluationValues.slope * 1000) / 1000;
       const trendValues = chartData.evaluationValues.values.map(n => n.value);
       console.log(chartData.evaluationValues);
       datasets.push({
-        // label: config.chart_setting.trend.label + "(slope=intercept=" + rTrend + ")",
-        label: `p=${chartData.evaluationValues.p} slope=${chartData.evaluationValues.slope} intercept=${chartData.evaluationValues.intercept}`,
+        label: config.chart_setting.trend.label + " (R=" + rTrend + ")",
         type: "line",
         data: trendValues,
         borderColor: config.chart_setting.trend.borderColor,
@@ -1376,6 +1345,11 @@ require([
         spanGaps: true,
         fill: false
       });
+      subtitleText = subtitleText + "　　" + "統計評価：有意性がある";
+    } else if (chartData.evaluationValues.evaluable == false) {
+      subtitleText = subtitleText + "　　" + "統計評価：有意性がない";
+    } else if (disconnectValues.filter(n => n != null).length > 0) {
+      subtitleText = subtitleText + "　　" + "統計評価：評価していない";
     }
 
     //移動平均のグラフ
@@ -1385,7 +1359,7 @@ require([
       data: movingAverages,
       borderColor: config.chart_setting.average.borderColor,
       backgroundColor: config.chart_setting.average.borderColor,
-      lineTension: 0.4,
+      lineTension: 0,
       borderWidth: 2,
       pointStyle: 'rect',
       spanGaps: false,
@@ -1434,7 +1408,7 @@ require([
             display: true,
             fontSize: subtitleSize,
             fontColor: '#000000',
-            text: "データは気象庁提供、国立環境研究所が解析したデータを基に作成"
+            text: subtitleText
           }
         },
         layout: {
@@ -1706,7 +1680,6 @@ require([
 
   //マップ画像の保存
   async function startMapDownload() {
-    //修正
     var prefecture = $('#prefectureselector1').val();
     var observatory = $('#observatoryselector1').val();
     var year = yearSlider.values[0];
@@ -1779,12 +1752,41 @@ require([
 });
 
 //URLパラメータの取得
-function getParam(name) {
+function getUrlParameters() {
+  var paramters = {}
   var url = window.location.href;
-  name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
+  let paramString = url.split('?')[1];
+  let queryString = new URLSearchParams(paramString);
+
+  for (let param of queryString.entries()) {
+
+    if (Object.keys(config.allowUrlParameter).includes(param[0])) {
+      var urlType = config.allowUrlParameter[param[0]].type;
+
+      if (param[0] == "prefecture1" || param[0] == "prefecture2" || param[0] == "prefecture3") {
+        if (config.prefecture.includes(param[1])) {
+          paramters[param[0]] = param[1];
+        }
+      } else if (param[0] == "month") {
+        if (!isNaN(param[1])) {
+          if (Number(param[1]) >= 1 && Number(param[1]) <= 12) {
+            paramters[param[0]] = param[1];
+          }
+        }
+      } else if (urlType == "number") {
+        if (!isNaN(param[1])) {
+          paramters[param[0]] = Number(param[1]);
+        }
+      } else if (urlType == "string") {
+        paramters[param[0]] = param[1];
+      } else if (urlType == "list") {
+        var urlList = config.allowUrlParameter[param[0]].list;
+        if (urlList.includes(param[1])) {
+          paramters[param[0]] = param[1];
+        }
+      }
+    }
+  }
+  console.log(paramters);
+  return paramters;
 }
