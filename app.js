@@ -27,54 +27,20 @@ var default_extend = config.default_extend;
 var graphElements = config.chart_setting.elements;
 
 //URLパラメータの取得
-var urlParameters = {
-  "display": getParam("display"),
-  "kansho": getParam("kansho"),
-  "shihyo": getParam("shihyo"),
-  "year": getParam("year"),
-  "month": getParam("month"),
-  "prefecture1": getParam("prefecture1"),
-  "observatory1": getParam("observatory1"),
-  "prefecture2": getParam("prefecture2"),
-  "observatory2": getParam("observatory2"),
-  "prefecture3": getParam("prefecture3"),
-  "observatory3": getParam("observatory3"),
-  "expand": getParam("expand"),
-}
+var urlParameters = getUrlParameters();
 
 require([
-  "esri/portal/Portal",
-  "esri/identity/OAuthInfo",
-  "esri/identity/IdentityManager",
   "esri/core/reactiveUtils",
-  "esri/Map",
   "esri/WebMap",
-  "esri/Basemap",
   "esri/views/MapView",
-  "esri/layers/TileLayer",
-  "esri/layers/FeatureLayer",
   "esri/widgets/Home",
-  "esri/widgets/Swipe",
   "esri/widgets/Legend",
   "esri/widgets/Expand",
   "esri/widgets/BasemapGallery",
   "esri/widgets/Slider",
-  "esri/widgets/ScaleBar",
-  "esri/geometry/Extent",
-  "esri/renderers/Renderer",
-  "esri/widgets/BasemapGallery/support/LocalBasemapsSource"
-], function (Portal, OAuthInfo, identityManager, reactiveUtils, Map, WebMap, Basemap, MapView, TileLayer, FeatureLayer,
-  Home, Swipe, Legend, Expand, BasemapGallery, Slider, ScaleBar, Extent, Renderer, LocalBasemapsSource) {
-
-  var portalUrl = "https://nies.maps.arcgis.com";
-
-  var info = new OAuthInfo({
-    appId: config.appId,
-    popup: false
-  });
-
-  identityManager.registerOAuthInfos([info]);
-  identityManager.getCredential(portalUrl);
+  "esri/widgets/ScaleBar"
+], function (reactiveUtils, WebMap, MapView,
+  Home, Legend, Expand, BasemapGallery, Slider, ScaleBar) {
 
   initForm();
 
@@ -186,13 +152,7 @@ require([
 
   map.when(function () {
     setForm(true);
-
-    if (urlParameters.prefecture1 || urlParameters.observatory1) {
-      setMapLayerFilter(true);
-    } else {
-      setMapLayerFilter(false);
-    }
-
+    setMapLayerFilter(true);
     draw_charts();
   });
 
@@ -569,9 +529,11 @@ require([
 
     var year = yearSlider.values[0];
     if (urlParameters.year) {
-      yearSlider.values[0] = urlParameters.year;
-      setMapLayerFilter(false);
-      year = Number(urlParameters.year);
+      if (urlParameters.year >= yearSlider.min && urlParameters.year <= yearSlider.max) {
+        yearSlider.values[0] = urlParameters.year;
+        year = urlParameters.year;
+        setMapLayerFilter(false);
+      }
       urlParameters.year = null;
     }
 
@@ -602,9 +564,12 @@ require([
       $(`#${prefectureElement}`).append(item);
     }
 
-    if (urlParameters[prefectureElement]) {
-      $(`#${prefectureElement}`).val(urlParameters[prefectureElement]);
-      urlParameters[prefectureElement] = null;
+    if (urlParameters[graphElement.prefectureUrlParameter]) {
+      $(`#${prefectureElement}`).val(urlParameters[graphElement.prefectureUrlParameter]);
+      urlParameters[graphElement.prefectureUrlParameter] = null;
+      if (graphElement.prefectureUrlParameter == "prefecture1") {
+        setMapLayerFilter(true);
+      }
     }
 
     setObservatoryselector(graphElement, init_flg);
@@ -697,9 +662,13 @@ require([
       group.append(item);
     }
 
-    if (urlParameters[observatoryElement]) {
-      $(`#${observatoryElement}`).val(urlParameters[observatoryElement]);
-      urlParameters[observatoryElement] = null;
+    if (urlParameters[graphElement.observatoryUrlParameter]) {
+      $(`#${observatoryElement}`).val(urlParameters[graphElement.observatoryUrlParameter]);
+      urlParameters[graphElement.observatoryUrlParameter] = null;
+      if (graphElement.observatoryUrlParameter == "observatory1") {
+        setMapLayerFilter(true);
+      }
+      draw_charts();
     }
   }
 
@@ -1783,12 +1752,41 @@ require([
 });
 
 //URLパラメータの取得
-function getParam(name) {
+function getUrlParameters() {
+  var paramters = {}
   var url = window.location.href;
-  name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
+  let paramString = url.split('?')[1];
+  let queryString = new URLSearchParams(paramString);
+
+  for (let param of queryString.entries()) {
+
+    if (Object.keys(config.allowUrlParameter).includes(param[0])) {
+      var urlType = config.allowUrlParameter[param[0]].type;
+
+      if (param[0] == "prefecture1" || param[0] == "prefecture2" || param[0] == "prefecture3") {
+        if (config.prefecture.includes(param[1])) {
+          paramters[param[0]] = param[1];
+        }
+      } else if (param[0] == "month") {
+        if (!isNaN(param[1])) {
+          if (Number(param[1]) >= 1 && Number(param[1]) <= 12) {
+            paramters[param[0]] = param[1];
+          }
+        }
+      } else if (urlType == "number") {
+        if (!isNaN(param[1])) {
+          paramters[param[0]] = Number(param[1]);
+        }
+      } else if (urlType == "string") {
+        paramters[param[0]] = param[1];
+      } else if (urlType == "list") {
+        var urlList = config.allowUrlParameter[param[0]].list;
+        if (urlList.includes(param[1])) {
+          paramters[param[0]] = param[1];
+        }
+      }
+    }
+  }
+  console.log(paramters);
+  return paramters;
 }

@@ -59,6 +59,50 @@
     "沖縄",
     "南極"
   ],
+  "allowUrlParameter": {
+    "display": {
+      "type": "list",
+      "list": [
+        "mapview",
+        "graphview"
+      ]
+    },
+    "kansho": {
+      "type": "list",
+      "list": [
+        "すべて",
+        "気象官署",
+        "アメダス"
+      ]
+    },
+    "shihyo": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "month": {
+      "type": "number"
+    },
+    "prefecture1": {
+      "type": "string"
+    },
+    "observatory1": {
+      "type": "string"
+    },
+    "prefecture2": {
+      "type": "string"
+    },
+    "observatory2": {
+      "type": "string"
+    },
+    "prefecture3": {
+      "type": "string"
+    },
+    "observatory3": {
+      "type": "string"
+    }
+  },
   "disconnect": {
     "kansho_table": "kansho_disconnect",
     "amedas_table": "amedas_disconnect"
